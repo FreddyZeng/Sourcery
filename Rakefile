@@ -66,17 +66,17 @@ end
 
 task :build do
   print_info "Building project"
-  xcrun %Q(xcodebuild -workspace Sourcery.xcworkspace -scheme Sourcery-Release -sdk macosx -derivedDataPath #{BUILD_DIR}tmp/)
-  sh %Q(rm -fr bin/Sourcery.app)
-  `mv #{BUILD_DIR}tmp/Build/Products/Release/Sourcery.app bin/`
-  sh %Q(rm -fr #{BUILD_DIR}tmp/)
+  xcrun %Q(swift build -c release --disable-sandbox --build-path #{BUILD_DIR})
+  sh %Q(rm -fr bin/sourcery)
+  `mv #{BUILD_DIR}release/sourcery bin/`
+  sh %Q(rm -fr #{BUILD_DIR})
 end
 
 ## [ Code Generated ] ################################################
 
 task :run_sourcery do
   print_info "Generating internal boilerplate code"
-  sh "bin/sourcery --sources './Sources/' --templates './Sourcery/Templates/' --output './SourceryRuntime/Sources/'"
+  sh "bin/sourcery"
 end
 
 desc "Update internal boilerplate code"
@@ -132,14 +132,6 @@ namespace :release do
 
   def podspec_version(file = 'Sourcery')
     JSON.parse(`bundle exec pod ipc spec #{file}.podspec`)["version"]
-  end
-
-  def project_update_version(version, project = 'Sourcery')
-    `sed -i '' -e 's/CURRENT_PROJECT_VERSION = #{project_version(project)};/CURRENT_PROJECT_VERSION = #{version};/g' #{project}.xcodeproj/project.pbxproj`
-  end
-
-  def project_version(project = 'Sourcery')
-    `xcodebuild -showBuildSettings -project #{project}.xcodeproj | grep CURRENT_PROJECT_VERSION | sed -E  's/(.*) = (.*)/\\2/'`.strip
   end
 
   VERSION_REGEX = /(?<begin>public static let current\s*=\s*SourceryVersion\(value:\s*.*")(?<value>(?<major>[0-9]+)(\.(?<minor>[0-9]+))?(\.(?<patch>[0-9]+))?)(?<end>"\))/i.freeze
@@ -317,9 +309,6 @@ namespace :release do
     podspec_update_version(new_version, 'SourceryFramework.podspec')
     podspec_update_version(new_version, 'SourceryRuntime.podspec')
     podspec_update_version(new_version, 'SourceryUtils.podspec')
-
-    # Update project version
-    project_update_version(new_version)
 
     # Update command line tool version
     command_line_tool_update_version(new_version)
