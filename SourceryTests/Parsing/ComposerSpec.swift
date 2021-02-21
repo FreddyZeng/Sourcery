@@ -23,12 +23,12 @@ class ParserComposerSpec: QuickSpec {
         describe("ParserComposer") {
             describe("uniqueTypesAndFunctions") {
                 func parse(_ code: String) -> [Type] {
-                    guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
+                    guard let parserResult = try? makeParser(for: code).parse() else { fail(); return [] }
                     return Composer.uniqueTypesAndFunctions(parserResult).types
                 }
 
                 func parseFunctions(_ code: String) -> [SourceryMethod] {
-                    guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
+                    guard let parserResult = try? makeParser(for: code).parse() else { fail(); return [] }
                     return Composer.uniqueTypesAndFunctions(parserResult).functions
                 }
 
@@ -146,7 +146,7 @@ class ParserComposerSpec: QuickSpec {
                                                                               typeName: TypeName("String"),
                                                                               defaultValue: "\"Baz\"")],
                                                  returnTypeName: TypeName("Void"),
-                                                 accessLevel: .none,
+                                                 accessLevel: .internal,
                                                  definedInTypeName: TypeName("Foo"))
                     }
 
@@ -155,7 +155,7 @@ class ParserComposerSpec: QuickSpec {
                             input = "enum Foo { case A; func \(method.name) {} }; extension Foo { func \(defaultedMethod.name) {} }"
                             parsedResult = parse(input).first
                             originalType = Enum(name: "Foo", cases: [EnumCase(name: "A")], methods: [method, defaultedMethod])
-                            typeExtension = Type(name: "Foo", accessLevel: .none, isExtension: true, methods: [defaultedMethod])
+                            typeExtension = Type(name: "Foo", accessLevel: .internal, isExtension: true, methods: [defaultedMethod])
                         }
 
                         it("resolves methods definedInType") {
@@ -169,7 +169,7 @@ class ParserComposerSpec: QuickSpec {
                             input = "protocol Foo { func \(method.name) }; extension Foo { func \(defaultedMethod.name) {} }"
                             parsedResult = parse(input).first
                             originalType = Protocol(name: "Foo", methods: [method, defaultedMethod])
-                            typeExtension = Type(name: "Foo", accessLevel: .none, isExtension: true, methods: [defaultedMethod])
+                            typeExtension = Type(name: "Foo", accessLevel: .internal, isExtension: true, methods: [defaultedMethod])
                         }
 
                         it("resolves methods definedInType") {
@@ -183,7 +183,7 @@ class ParserComposerSpec: QuickSpec {
                             input = "class Foo { func \(method.name) {} }; extension Foo { func \(defaultedMethod.name) {} }"
                             parsedResult = parse(input).first
                             originalType = Class(name: "Foo", methods: [method, defaultedMethod])
-                            typeExtension = Type(name: "Foo", accessLevel: .none, isExtension: true, methods: [defaultedMethod])
+                            typeExtension = Type(name: "Foo", accessLevel: .internal, isExtension: true, methods: [defaultedMethod])
                         }
 
                         it("resolves methods definedInType") {
@@ -197,7 +197,7 @@ class ParserComposerSpec: QuickSpec {
                             input = "struct Foo { func \(method.name) {} }; extension Foo { func \(defaultedMethod.name) {} }"
                             parsedResult = parse(input).first
                             originalType = Struct(name: "Foo", methods: [method, defaultedMethod])
-                            typeExtension = Type(name: "Foo", accessLevel: .none, isExtension: true, methods: [defaultedMethod])
+                            typeExtension = Type(name: "Foo", accessLevel: .internal, isExtension: true, methods: [defaultedMethod])
                         }
 
                         it("resolves methods definedInType") {
@@ -274,6 +274,7 @@ class ParserComposerSpec: QuickSpec {
                                                                             parameters: [MethodParameter(name: "rawValue",
                                                                                                          typeName: TypeName("String"))],
                                                                             returnTypeName: TypeName("Foo?"),
+                                                                            isStatic: true,
                                                                             isFailableInitializer: true,
                                                                             definedInTypeName: TypeName("Foo"))]
                                                       )
@@ -297,6 +298,7 @@ class ParserComposerSpec: QuickSpec {
                                                            methods: [Method(name: "init?(rawValue: RawValue)", selectorName: "init(rawValue:)",
                                                                             parameters: [MethodParameter(name: "rawValue", typeName: TypeName("RawValue"))],
                                                                             returnTypeName: TypeName("Foo?"),
+                                                                            isStatic: true,
                                                                             isFailableInitializer: true,
                                                                             definedInTypeName: TypeName("Foo"))],
                                                            typealiases: [Typealias(aliasName: "RawValue", typeName: TypeName("String"))])
@@ -320,6 +322,7 @@ class ParserComposerSpec: QuickSpec {
                                                            methods: [Method(name: "init?(rawValue: RawValue)", selectorName: "init(rawValue:)",
                                                                             parameters: [MethodParameter(name: "rawValue", typeName: TypeName("RawValue"))],
                                                                             returnTypeName: TypeName("Foo?"),
+                                                                            isStatic: true,
                                                                             isFailableInitializer: true,
                                                                             definedInTypeName: TypeName("Foo"))],
                                                            typealiases: [Typealias(aliasName: "RawValue", typeName: TypeName("String"))])
@@ -330,10 +333,10 @@ class ParserComposerSpec: QuickSpec {
 
                 context("given enum inheriting protocol composition") {
                     it("extracts the protocol composition as the inherited type") {
-                        expect(parse("enum Enum: Composition { }; typealias Composition = Foo & Bar; protocol Foo {}; protocol Bar {}"))
-                            .to(contain([
+                        expect(parse("enum Enum: Composition { }; typealias Composition = Foo & Bar; protocol Foo {}; protocol Bar {}").first(where: { $0.name == "Enum" }))
+                            .to(equal(
                                 Enum(name: "Enum", inheritedTypes: ["Composition"])
-                            ]))
+                            ))
                     }
                 }
 
@@ -601,6 +604,9 @@ class ParserComposerSpec: QuickSpec {
                             accessLevel: (.internal, .internal),
                             isStatic: true,
                             defaultValue: ".init()",
+                            attributes: [
+                                "static": Attribute(name: "static", arguments: [:], description: "static")
+                            ],
                             definedInTypeName: TypeName("Foo.SubType")
                         )
 
@@ -662,7 +668,7 @@ class ParserComposerSpec: QuickSpec {
 
                 context("given typealiases") {
                     func parseTypealiases(_ code: String) -> [Typealias] {
-                        guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
+                        guard let parserResult = try? makeParser(for: code).parse() else { fail(); return [] }
                         return Composer.uniqueTypesAndFunctions(parserResult).typealiases
                     }
 
@@ -1119,7 +1125,15 @@ class ParserComposerSpec: QuickSpec {
                         expectedActualTypeName.generic = GenericType(name: "Blah.Foo", typeParameters: [GenericTypeParameter(typeName: TypeName("Blah.FooBar"), type: expectedBlah.containedType["FooBar"])])
                         expectedVariable.typeName.generic = expectedActualTypeName.generic
 
-                        let types = parse("struct Blah { struct FooBar {}; struct Foo<T> {}; struct Bar { let foo: Foo<FooBar>? }}")
+                        let types = parse("""
+                                          struct Blah {
+                                              struct FooBar {}
+                                              struct Foo<T> {}
+                                              struct Bar {
+                                                  let foo: Foo<FooBar>?
+                                              }
+                                          }
+                                          """)
                         let bar = types.first(where: { $0.name == "Blah.Bar" })
 
                         expect(bar?.variables.first).to(equal(expectedVariable))
@@ -1197,7 +1211,7 @@ class ParserComposerSpec: QuickSpec {
                 context("given types within modules") {
                     func parseModules(_ modules: (name: String?, contents: String)...) -> [Type] {
                         let moduleResults = modules.compactMap {
-                            try? parser(contents: $0.contents, module: $0.name).parse()
+                            try? makeParser(for: $0.contents, module: $0.name).parse()
                         }
 
                         let parserResult = moduleResults.reduce(FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: [])) { acc, next in
@@ -1212,7 +1226,9 @@ class ParserComposerSpec: QuickSpec {
                     context("when using global names") {
 
                         it("extends type with extension") {
-                            let expectedBar = Struct(name: "Bar", variables: [Variable(name: "foo", typeName: TypeName("Int"), accessLevel: (read: .none, write: .none), isComputed: true, definedInTypeName: TypeName("MyModule.Bar"))])
+                            let expectedBar = Struct(name: "Bar", variables: [
+                                Variable(name: "foo", typeName: TypeName("Int"), accessLevel: (read: .internal, write: .none), isComputed: true, definedInTypeName: TypeName("MyModule.Bar"))
+                            ])
                             expectedBar.module = "MyModule"
 
                             let types = parseModules(
@@ -1353,7 +1369,7 @@ class ParserComposerSpec: QuickSpec {
                             ], containedTypes: [expectedBar, expectedBaz])
                             expectedFoo.module = "ModuleA"
 
-                            let expectedDouble = Type(name: "Double", accessLevel: .none, isExtension: true)
+                            let expectedDouble = Type(name: "Double", accessLevel: .internal, isExtension: true)
                             expectedDouble.module = "ModuleA"
 
                             let types = parseModules(
@@ -1450,7 +1466,7 @@ class ParserComposerSpec: QuickSpec {
                 context("given protocols of the same name in different modules") {
                     func parseModules(_ modules: (name: String?, contents: String)...) -> [Type] {
                         let moduleResults = modules.compactMap {
-                            try? parser(contents: $0.contents, module: $0.name).parse()
+                            try? makeParser(for: $0.contents, module: $0.name).parse()
                         }
 
                         let parserResult = moduleResults.reduce(FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: [])) { acc, next in

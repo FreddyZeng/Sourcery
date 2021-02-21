@@ -20,10 +20,13 @@ public protocol FileParserType {
     /// - Throws: parsing errors.
     init(contents: String, path: Path?, module: String?) throws
 
-    func parseContentsIfNeeded() -> String
-
     /// Parses given file context.
     ///
     /// - Returns: All types we could find.
     func parse() throws -> FileParserResult
+}
+
+public func makeParser(for contents: String, path: Path? = nil, module: String? = nil) throws -> FileParserType {
+//    try FileParser(contents: contents, path: path, module: module)
+    try FileParserSyntax(contents: contents, path: path, module: module)
 }

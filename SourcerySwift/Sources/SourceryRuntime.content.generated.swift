@@ -252,6 +252,11 @@ import Foundation
 
 }
 
+public extension Attribute {
+    static let classAttribute = Attribute(name: "class", arguments: [:], description: "class")
+    static let staticAttribute = Attribute(name: "static", arguments: [:], description: "static")
+}
+
 """),
     .init(name: "BytesRange.swift", content:
 """
@@ -333,6 +338,7 @@ import Foundation
             inheritedTypes: inheritedTypes,
             containedTypes: containedTypes,
             typealiases: typealiases,
+            attributes: attributes,
             annotations: annotations,
             isGeneric: isGeneric
         )
@@ -2911,7 +2917,7 @@ public typealias SourceryMethod = Method
     /// Whether method is a failable initializer
     public let isFailableInitializer: Bool
 
-    // sourcery: skipEqaulitey, skipDescription, skipCoding, skipJSExport
+    // sourcery: skipEquality, skipDescription, skipCoding, skipJSExport
     /// :nodoc:
     @available(*, deprecated, message: "Use isConvenienceInitializer instead") public var isConvenienceInitialiser: Bool {
         return attributes[Attribute.Identifier.convenience.name] != nil
@@ -3128,6 +3134,7 @@ public typealias SourceryProtocol = Protocol
             inheritedTypes: inheritedTypes,
             containedTypes: containedTypes,
             typealiases: typealiases,
+            attributes: attributes,
             annotations: annotations,
             isGeneric: isGeneric
         )
@@ -4896,7 +4903,7 @@ public typealias SourceryVariable = Variable
 
     /// Reference to type name where the variable is defined,
     /// nil if defined outside of any `enum`, `struct`, `class` etc
-    public let definedInTypeName: TypeName?
+    public internal(set) var definedInTypeName: TypeName?
 
     /// Reference to actual type name where the method is defined if declaration uses typealias, otherwise just a `definedInTypeName`
     public var actualDefinedInTypeName: TypeName? {

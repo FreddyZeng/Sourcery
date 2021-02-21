@@ -171,7 +171,7 @@ public typealias SourceryMethod = Method
     /// Whether method is a failable initializer
     public let isFailableInitializer: Bool
 
-    // sourcery: skipEqaulitey, skipDescription, skipCoding, skipJSExport
+    // sourcery: skipEquality, skipDescription, skipCoding, skipJSExport
     /// :nodoc:
     @available(*, deprecated, message: "Use isConvenienceInitializer instead") public var isConvenienceInitialiser: Bool {
         return attributes[Attribute.Identifier.convenience.name] != nil

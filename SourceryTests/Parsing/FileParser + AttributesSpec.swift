@@ -8,21 +8,19 @@ class FileParserAttributesSpec: QuickSpec {
     override func spec() {
 
         describe("FileParser") {
-
+            #warning("this needs update")
             guard let sut: FileParser = try? FileParser(contents: "") else { return fail() }
 
             func parse(_ code: String) -> [Type] {
-                guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return [] }
+                guard let parserResult = try? makeParser(for: code).parse() else { fail(); return [] }
                 return Composer.uniqueTypesAndFunctions(parserResult).types
             }
 
             it("extracts type attributes") {
-                expect(sut.parseTypeAttributes("@autoclosure @convention(swift) @escaping (@escaping ()->())->()"))
-                    .to(equal([
-                        "escaping": Attribute(name: "escaping"),
-                        "convention": Attribute(name: "convention", arguments: ["swift": NSNumber(value: true)], description: "@convention(swift)"),
-                        "autoclosure": Attribute(name: "autoclosure")
-                        ]))
+                expect(parse("class Foo { func some(param: @convention(swift) @escaping ()->()) {} }").first?.methods.first?.parameters.first?.typeAttributes).to(equal([
+                    "escaping": Attribute(name: "escaping"),
+                    "convention": Attribute(name: "convention", arguments: ["0": "swift" as NSString], description: "@convention(swift)")
+                    ]))
 
                 expect(parse("final class Foo { }").first?.attributes).to(equal([
                     "final": Attribute(name: "final", description: "final")
@@ -33,7 +31,7 @@ class FileParserAttributesSpec: QuickSpec {
                     ]))
 
                 expect(parse("@objc(Bar) class Foo {}").first?.attributes).to(equal([
-                    "objc": Attribute(name: "objc", arguments: ["name": "Bar" as NSString], description: "@objc(Bar)")
+                    "objc": Attribute(name: "objc", arguments: ["0": "Bar" as NSString], description: "@objc(Bar)")
                     ]))
 
                 expect(parse("@objcMembers class Foo {}").first?.attributes).to(equal([
@@ -46,37 +44,39 @@ class FileParserAttributesSpec: QuickSpec {
             }
 
             context("given attribute with arguments") {
-                it("extracts attribute arguments with no values") {
-                    expect(sut.parseTypeAttributes("@convention(swift) (@escaping ()->())->()"))
-                        .to(equal([
-                            "convention": Attribute(name: "convention", arguments: ["swift": NSNumber(value: true)], description: "@convention(swift)")
-                            ]))
-                }
-
                 it("extracts attribute arguments with values") {
-                    expect(sut.parseTypeAttributes("@available(*, unavailable, renamed: \"Use MyRenamedProtocol\")"))
+                    expect(parse("""
+                            @available(*, unavailable, renamed: \"NewFoo\")
+                            protocol Foo {}
+                            """
+                            ).first?.attributes)
                         .to(equal([
                             "available": Attribute(name: "available", arguments: [
-                                "unavailable": NSNumber(value: true),
-                                "renamed": "Use MyRenamedProtocol" as NSString
-                                ], description: "@available(*, unavailable, renamed: \"Use MyRenamedProtocol\")")
+                                "0": "*" as NSString,
+                                "1": "unavailable" as NSString,
+                                "renamed": "NewFoo" as NSString
+                                ], description: "@available(*, unavailable, renamed: \"NewFoo\")")
                             ]))
 
-                    expect(sut.parseTypeAttributes("@available(iOS 10.0, macOS 10.12, *)"))
-                        .to(equal([
-                            "available": Attribute(name: "available", arguments: [
-                                "iOS_10.0": NSNumber(value: true),
-                                "macOS_10.12": NSNumber(value: true)
-                                ], description: "@available(iOS 10.0, macOS 10.12, *)")
-                            ]))
-
+                    expect(parse("""
+                            @available(iOS 10.0, macOS 10.12, *)
+                            protocol Foo {}
+                            """
+                            ).first?.attributes)
+                    .to(equal([
+                        "available": Attribute(name: "available", arguments: [
+                            "0": "iOS 10.0" as NSString,
+                            "1": "macOS 10.12" as NSString,
+                            "2": "*" as NSString
+                            ], description: "@available(iOS 10.0, macOS 10.12, *)")
+                        ]))
                 }
             }
 
             it("extracts method attributes") {
                 expect(parse("class Foo { @discardableResult\n@objc(some)\nfunc some() {} }").first?.methods.first?.attributes).to(equal([
                     "discardableResult": Attribute(name: "discardableResult"),
-                    "objc": Attribute(name: "objc", arguments: ["name": "some" as NSString], description: "@objc(some)")
+                    "objc": Attribute(name: "objc", arguments: ["0": "some" as NSString], description: "@objc(some)")
                     ]))
 
                 expect(parse("class Foo { @nonobjc convenience required init() {} }").first?.initializers.first?.attributes).to(equal([
@@ -93,7 +93,7 @@ class FileParserAttributesSpec: QuickSpec {
                     "final": Attribute(name: "final", description: "final")
                     ]))
 
-                expect(parse("@objc protocol Foo { @objc optional func some() {} }").first?.methods.first?.attributes).to(equal([
+                expect(parse("@objc protocol Foo { @objc optional func some() }").first?.methods.first?.attributes).to(equal([
                     "objc": Attribute(name: "objc", description: "@objc"),
                     "optional": Attribute(name: "optional", description: "optional")
                     ]))
@@ -106,9 +106,9 @@ class FileParserAttributesSpec: QuickSpec {
             }
 
             it("extracts variable attributes") {
-                expect(parse("class Foo { @NSCopying @objc(objcName:) var name: String }").first?.variables.first?.attributes).to(equal([
+                expect(parse("class Foo { @NSCopying @objc(objcName) var name: NSString = \"\" }").first?.variables.first?.attributes).to(equal([
                     "NSCopying": Attribute(name: "NSCopying", description: "@NSCopying"),
-                    "objc": Attribute(name: "objc", arguments: ["name": "objcName:" as NSString], description: "@objc(objcName:)")
+                    "objc": Attribute(name: "objc", arguments: ["0": "objcName" as NSString], description: "@objc(objcName)")
                     ]))
 
                 expect(parse("struct Foo { mutating var some: Int }").first?.variables.first?.attributes).to(equal([
@@ -125,7 +125,7 @@ class FileParserAttributesSpec: QuickSpec {
 
                 func assertSetterAccess(_ access: String, line: UInt = #line) {
                     expect(line: line, parse("public class Foo { \(access)(set) var some: Int }").first?.variables.first?.attributes).to(equal([
-                        access: Attribute(name: access, arguments: ["set": NSNumber(value: true)], description: "\(access)(set)")
+                        access: Attribute(name: access, arguments: ["0": "set" as NSString], description: "\(access)(set)")
                         ]))
                 }
 
@@ -140,10 +140,10 @@ class FileParserAttributesSpec: QuickSpec {
                         ]))
                 }
 
-                assertSetterAccess("private")
-                assertSetterAccess("fileprivate")
-                assertSetterAccess("internal")
-                assertSetterAccess("public")
+                assertGetterAccess("private")
+                assertGetterAccess("fileprivate")
+                assertGetterAccess("internal")
+                assertGetterAccess("public")
 
             }
 

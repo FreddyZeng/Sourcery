@@ -36,6 +36,7 @@ import Foundation
             inheritedTypes: inheritedTypes,
             containedTypes: containedTypes,
             typealiases: typealiases,
+            attributes: attributes,
             annotations: annotations,
             isGeneric: isGeneric
         )

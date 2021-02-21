@@ -1,6 +1,16 @@
 # Sourcery CHANGELOG
 
 ---
+## Master
+## AST Data Changes
+- initializers are now considered as static method not instance
+- default access level when not provided in code is internal everywhere
+
+### Attributes
+- Name when not named will be using index same as associated value do e.g. objc(name) will have `0: name` as argument 
+- `class` / `static` will be returned from attributes for methods
+- spaces will no longer be replaced with `_`
+
 ## 1.2.1
 
 ## Internal Changes

@@ -384,13 +384,31 @@ extension FileParser {
 }
 
 // MARK: - Variables
-extension FileParser {
+extension FileParserType {
+    internal func inferType(from input: String) -> String? {
+        return Self.inferType(from: input)
+    }
 
-    private func inferType(from input: String) -> String? {
+    internal static func extractComposedTypeNames(from value: String, trimmingCharacterSet: CharacterSet? = nil) -> [TypeName]? {
+        guard case let components = value.components(separatedBy: CharacterSet(charactersIn: "&")),
+              components.count > 1 else { return nil }
+
+        var characterSet: CharacterSet = .whitespacesAndNewlines
+        if let trimmingCharacterSet = trimmingCharacterSet {
+            characterSet = characterSet.union(trimmingCharacterSet)
+        }
+
+        let suffixes = components.map { source in
+            source.trimmingCharacters(in: characterSet)
+        }
+        return suffixes.map(TypeName.init(_:))
+    }
+
+    internal static func inferType(from input: String) -> String? {
         let string = input
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .strippingComments()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+          .trimmingCharacters(in: .whitespacesAndNewlines)
+          .strippingComments()
+          .trimmingCharacters(in: .whitespacesAndNewlines)
         // probably lazy property or default value with closure,
         // we expect explicit type, as we don't know return type
         guard !(string.hasPrefix("{") && string.hasSuffix(")")) else { return nil }
@@ -419,7 +437,9 @@ extension FileParser {
                     types.append(type)
                 } else {
                     guard let type = inferType(from: nameAndValue[1]) else { return nil }
-                    let name = nameAndValue[0].replacingOccurrences(of: "_", with: "").trimmingCharacters(in: .whitespaces)
+                    let name = nameAndValue[0]
+                      .replacingOccurrences(of: "_", with: "")
+                      .trimmingCharacters(in: .whitespaces)
                     if name.isEmpty {
                         types.append(type)
                     } else {
@@ -432,9 +452,14 @@ extension FileParser {
         } else if string.first == "[", string.last == "]" {
             //collection
             let string = string.dropFirstAndLast()
-            let items = string.commaSeparated().map {
-                $0.trimmingCharacters(in: .whitespacesAndNewlines).strippingComments().trimmingCharacters(in: .whitespacesAndNewlines)
-            }
+            let items = string
+              .commaSeparated()
+              .map {
+                  $0
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .strippingComments()
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+              }
 
             func genericType(from itemsTypes: [String]) -> String {
                 let genericType: String
@@ -442,8 +467,8 @@ extension FileParser {
                 if uniqueTypes.count == 1, let type = uniqueTypes.first {
                     genericType = type
                 } else if uniqueTypes.count == 2,
-                    uniqueTypes.remove("Optional") != nil,
-                    let type = uniqueTypes.first {
+                          uniqueTypes.remove("Optional") != nil,
+                          let type = uniqueTypes.first {
                     genericType = "\(type)?"
                 } else {
                     genericType = "Any"
@@ -466,19 +491,18 @@ extension FileParser {
                 for items in items {
                     let keyAndValue = items.colonSeparated()
                     guard keyAndValue.count == 2,
-                        let keyType = inferType(from: keyAndValue[0]),
-                        let valueType = inferType(from: keyAndValue[1])
-                        else {
-                            return nil
-                        }
+                          let keyType = inferType(from: keyAndValue[0]),
+                          let valueType = inferType(from: keyAndValue[1])
+                      else {
+                        return nil
+                    }
 
                     keysTypes.append(keyType)
                     valuesTypes.append(valueType)
                 }
                 return "[\(genericType(from: keysTypes)): \(genericType(from: valuesTypes))]"
             }
-        }
-        else {
+        } else {
             // Enums, i.e. `Optional.some(...)` or `Optional.none` should be inferred to `Optional`
             // Contained types, i.e. `Foo.Bar()` should be inferred to `Foo.Bar`
             // This also supports initializers i.e. `MyType.SubType.init()`
@@ -487,7 +511,9 @@ extension FileParser {
                 let components = string.components(separatedBy: ".", excludingDelimiterBetween: ("<[(", ")]>"))
                 if components.count > 1, let lastComponentFirstLetter = components.last?.first.map(String.init) {
                     if lastComponentFirstLetter.lowercased() == lastComponentFirstLetter {
-                        return components.dropLast().joined(separator: ".")
+                        return components
+                          .dropLast()
+                          .joined(separator: ".")
                     }
                 }
                 return nil
@@ -506,6 +532,9 @@ extension FileParser {
             }
         }
     }
+}
+
+extension FileParser {
 
     private func parseVariable(_ source: [String: SourceKitRepresentable], definedIn: Type?, isStatic: Bool = false) -> Variable? {
         guard let (nameOrNil, _, accessibility) = parseTypeRequirements(source),
@@ -544,7 +573,7 @@ extension FileParser {
             (setterAccessibility == nil && !constant) ||
             (setterAccessibility != nil && !body.isEmpty && hasPropertyObservers == false)
         )
-        let accessLevel = (read: accessibility, write: setterAccessibility ?? .none)
+        let accessLevel = (read: accessibility, write: setterAccessibility ?? (constant ? .none :.internal))
         let defaultValue = extractDefaultValue(type: maybeType, from: source)
         let definedInTypeName = definedIn.map { TypeName($0.name) }
 
@@ -784,7 +813,7 @@ extension FileParser {
             else { return nil }
 
         let trimmingCharacterSet = CharacterSet(charactersIn: "=")
-        if let composedTypeNames = extractComposedTypeNames(from: nameSuffix, trimmingCharacterSet: trimmingCharacterSet), composedTypeNames.count > 1 {
+        if let composedTypeNames = Self.extractComposedTypeNames(from: nameSuffix, trimmingCharacterSet: trimmingCharacterSet), composedTypeNames.count > 1 {
             let inheritedTypes = composedTypeNames.map { $0.name }
             return .protocolComposition(ProtocolComposition(name: name, parent: containingType, inheritedTypes: inheritedTypes, composedTypeNames: composedTypeNames))
         }
@@ -805,7 +834,7 @@ extension FileParser {
             else { return AssociatedType(name: name) }
 
         let type: Type?
-        if let composedTypeNames = extractComposedTypeNames(from: nameSuffix), composedTypeNames.count > 1 {
+        if let composedTypeNames = Self.extractComposedTypeNames(from: nameSuffix), composedTypeNames.count > 1 {
             let inheritedTypes = composedTypeNames.map { $0.name }
             type = ProtocolComposition(parent: definedIn, inheritedTypes: inheritedTypes, composedTypeNames: composedTypeNames)
         } else {
@@ -953,21 +982,6 @@ extension FileParser {
         } else {
             return nil
         }
-    }
-
-    private func extractComposedTypeNames(from value: String, trimmingCharacterSet: CharacterSet? = nil) -> [TypeName]? {
-        guard case let components = value.components(separatedBy: CharacterSet(charactersIn: "&")),
-            components.count > 1 else { return nil }
-
-        var characterSet: CharacterSet = .whitespacesAndNewlines
-        if let trimmingCharacterSet = trimmingCharacterSet {
-            characterSet = characterSet.union(trimmingCharacterSet)
-        }
-
-        let suffixes = components.map { source in
-            source.trimmingCharacters(in: characterSet)
-        }
-        return suffixes.map(TypeName.init(_:))
     }
 }
 

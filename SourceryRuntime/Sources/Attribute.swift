@@ -159,3 +159,8 @@ import Foundation
 // sourcery:end
 
 }
+
+public extension Attribute {
+    static let classAttribute = Attribute(name: "class", arguments: [:], description: "class")
+    static let staticAttribute = Attribute(name: "static", arguments: [:], description: "static")
+}

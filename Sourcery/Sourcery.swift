@@ -232,10 +232,6 @@ class Sourcery {
 extension Sourcery {
     typealias ParsingResult = (types: Types, functions: [SourceryMethod], inlineRanges: [(file: String, ranges: [String: NSRange], indentations: [String: String])])
 
-    fileprivate func parser(contents: String, path: Path? = nil, module: String? = nil) throws -> FileParserType {
-        try FileParser(contents: contents, path: path, module: module)
-    }
-
     fileprivate func parse(from: [Path], exclude: [Path] = [], forceParse: [String] = [], modules: [String]?) throws -> ParsingResult {
         if let modules = modules {
             precondition(from.count == modules.count, "There should be module for each file to parse")
@@ -278,7 +274,7 @@ extension Sourcery {
                     return result == .approved
                 }
                 .map {
-                    try parser(contents: $0.contents, path: $0.path, module: modules?[index])
+                    try makeParser(for: $0.contents, path: $0.path, module: modules?[index])
             }
 
             var previousUpdate = 0
