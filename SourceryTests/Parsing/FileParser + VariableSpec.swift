@@ -24,7 +24,10 @@ class FileParserVariableSpec: QuickSpec {
                         """
                     guard let parser = try? parser(contents: wrappedCode) else { fail(); return nil }
                     let result = try? parser.parse()
-                    return result?.types.first?.variables.first
+                    let variable = result?.types.first?.variables.first
+                    variable?.definedInType = nil
+                    variable?.definedInTypeName = nil
+                    return variable
                 }
 
                 it("reports variable mutability") {

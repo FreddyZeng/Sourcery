@@ -60,7 +60,7 @@ public typealias SourceryVariable = Variable
 
     /// Reference to type name where the variable is defined,
     /// nil if defined outside of any `enum`, `struct`, `class` etc
-    public let definedInTypeName: TypeName?
+    public internal(set) var definedInTypeName: TypeName?
 
     /// Reference to actual type name where the method is defined if declaration uses typealias, otherwise just a `definedInTypeName`
     public var actualDefinedInTypeName: TypeName? {

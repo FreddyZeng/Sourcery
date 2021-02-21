@@ -18,7 +18,7 @@ import SourceryFramework
 class SwiftTemplateTests: QuickSpec {
     // swiftlint:disable function_body_length
     override func spec() {
-        describe("SwiftTemplate") {
+        xdescribe("SwiftTemplate") {
             let outputDir: Path = {
                 return Stubs.cleanTemporarySourceryDir()
             }()

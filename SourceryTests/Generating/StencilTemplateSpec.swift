@@ -10,7 +10,7 @@ class StencilTemplateSpec: QuickSpec {
     // swiftlint:disable:next function_body_length
     override func spec() {
 
-        describe("StencilTemplate") {
+        xdescribe("StencilTemplate") {
 
             func generate(_ template: String) -> String {
                 let arrayAnnotations = Variable(name: "annotated1", typeName: TypeName("MyClass"))
