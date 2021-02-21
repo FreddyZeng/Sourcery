@@ -16,7 +16,7 @@ class FileParserSpec: QuickSpec {
         describe("Parser") {
             describe("parse") {
                 func parse(_ code: String) -> [Type] {
-                    guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return [] }
+                    guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
                     return Composer.uniqueTypesAndFunctions(parserResult).types
                 }
 
@@ -238,7 +238,7 @@ class FileParserSpec: QuickSpec {
 
                 context("given typealias") {
                     func parse(_ code: String) -> FileParserResult {
-                        guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: []) }
+                        guard let parserResult = try? parser(contents: code).parse() else { fail(); return FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: []) }
                         return parserResult
                     }
 

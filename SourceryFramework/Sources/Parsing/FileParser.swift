@@ -45,7 +45,7 @@ extension EnumCase: Parsable {}
 extension Subscript: Parsable {}
 extension Attribute: Parsable {}
 
-public final class FileParser {
+public final class FileParser: FileParserType {
 
     public let path: String?
     public let module: String?
@@ -109,7 +109,7 @@ public final class FileParser {
         return FileParserResult(path: path, module: module, types: types, functions: functions, typealiases: typealiases, inlineRanges: inlineRanges, inlineIndentations: inlineIndentations, modifiedDate: modifiedDate ?? Date(), sourceryVersion: SourceryVersion.current.value)
     }
 
-    internal func parseImports(_ code: String) throws -> [String] {
+    private func parseImports(_ code: String) throws -> [String] {
         var unique: Set<String> = []
         let regExp = try NSRegularExpression(pattern: "(?:(?:^|;)\\s*)(?:@testable\\s+)?import\\s+([a-zA-Z0-9_]+)", options: [.anchorsMatchLines])
         for match in regExp.matches(in: code, options: [], range: NSRange(code.startIndex..., in: code)) {
@@ -119,7 +119,7 @@ public final class FileParser {
         return Array(unique)
     }
 
-    internal func parseTypes(_ source: [String: SourceKitRepresentable]) throws -> ([Type], [SourceryMethod], [Typealias]) {
+    private func parseTypes(_ source: [String: SourceKitRepresentable]) throws -> ([Type], [SourceryMethod], [Typealias]) {
         var types = [Type]()
         var functions = [SourceryMethod]()
         var typealiases = [Typealias]()
@@ -355,7 +355,7 @@ extension FileParser {
         return (name, kind, accessibility)
     }
 
-    internal func extractInheritedTypes(source: [String: SourceKitRepresentable]) -> [String] {
+    private func extractInheritedTypes(source: [String: SourceKitRepresentable]) -> [String] {
         return (source[SwiftDocKey.inheritedtypes.rawValue] as? [[String: SourceKitRepresentable]])?.compactMap { type in
             return type[SwiftDocKey.name.rawValue] as? String
         } ?? []
@@ -507,7 +507,7 @@ extension FileParser {
         }
     }
 
-    internal func parseVariable(_ source: [String: SourceKitRepresentable], definedIn: Type?, isStatic: Bool = false) -> Variable? {
+    private func parseVariable(_ source: [String: SourceKitRepresentable], definedIn: Type?, isStatic: Bool = false) -> Variable? {
         guard let (nameOrNil, _, accessibility) = parseTypeRequirements(source),
             let name = nameOrNil else { return nil }
         
@@ -559,7 +559,7 @@ extension FileParser {
 // MARK: - Subscripts
 extension FileParser {
 
-    internal func parseSubscript(_ source: [String: SourceKitRepresentable], definedIn: Type? = nil, nextStructure: [String: SourceKitRepresentable]? = nil) -> Subscript? {
+    private func parseSubscript(_ source: [String: SourceKitRepresentable], definedIn: Type? = nil, nextStructure: [String: SourceKitRepresentable]? = nil) -> Subscript? {
         guard let method = parseMethod(source, definedIn: definedIn, nextStructure: nextStructure) else { return nil }
         guard let accessibility = AccessLevel(rawValue: method.accessLevel) else { return nil }
 
@@ -574,7 +574,7 @@ extension FileParser {
 // MARK: - Methods
 extension FileParser {
 
-    internal func parseMethod(_ source: [String: SourceKitRepresentable], definedIn: Type? = nil, nextStructure: [String: SourceKitRepresentable]? = nil) -> SourceryMethod? {
+    private func parseMethod(_ source: [String: SourceKitRepresentable], definedIn: Type? = nil, nextStructure: [String: SourceKitRepresentable]? = nil) -> SourceryMethod? {
         let requirements = parseTypeRequirements(source)
         guard
             let kind = requirements?.kind,
@@ -669,7 +669,7 @@ extension FileParser {
         return method
     }
 
-    internal func parseParameter(_ source: [String: SourceKitRepresentable]) -> MethodParameter? {
+    private func parseParameter(_ source: [String: SourceKitRepresentable]) -> MethodParameter? {
         guard let (name, _, _) = parseTypeRequirements(source),
             let type = source[SwiftDocKey.typeName.rawValue] as? String else {
                 return nil
@@ -820,7 +820,7 @@ extension FileParser {
 extension FileParser {
 
     // used to parse attributes of declarations (type, variable, method, subscript) from sourcekit response
-    internal func parseDeclarationAttributes(_ source: [String: SourceKitRepresentable]) -> [String: Attribute] {
+    private func parseDeclarationAttributes(_ source: [String: SourceKitRepresentable]) -> [String: Attribute] {
         if let attributes = source["key.attributes"] as? [[String: SourceKitRepresentable]] {
             let parsedAttributes = attributes.compactMap { (attributeDict) -> Attribute? in
                 guard let key = extract(.key, from: attributeDict) else { return nil }

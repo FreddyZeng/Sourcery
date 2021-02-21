@@ -16,15 +16,15 @@ class FileParserVariableSpec: QuickSpec {
         describe("Parser") {
             describe("parseVariable") {
                 func parse(_ code: String) -> Variable? {
-                    guard let parser = try? FileParser(contents: code) else { fail(); return nil }
-                    let code = build(code)
-                    guard let substructures = code?[SwiftDocKey.substructure.rawValue] as? [SourceKitRepresentable],
-                          let src = substructures.first as? [String: SourceKitRepresentable] else {
-                        fail()
-                        return nil
-                    }
-                    _ = try? parser.parse()
-                    return parser.parseVariable(src, definedIn: nil)
+                    let wrappedCode =
+                        """
+                        struct Wrapper {
+                            \(code)
+                        }
+                        """
+                    guard let parser = try? parser(contents: wrappedCode) else { fail(); return nil }
+                    let result = try? parser.parse()
+                    return result?.types.first?.variables.first
                 }
 
                 it("reports variable mutability") {

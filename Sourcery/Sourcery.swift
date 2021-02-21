@@ -232,6 +232,10 @@ class Sourcery {
 extension Sourcery {
     typealias ParsingResult = (types: Types, functions: [SourceryMethod], inlineRanges: [(file: String, ranges: [String: NSRange], indentations: [String: String])])
 
+    fileprivate func parser(contents: String, path: Path? = nil, module: String? = nil) throws -> FileParserType {
+        try FileParser(contents: contents, path: path, module: module)
+    }
+
     fileprivate func parse(from: [Path], exclude: [Path] = [], forceParse: [String] = [], modules: [String]?) throws -> ParsingResult {
         if let modules = modules {
             precondition(from.count == modules.count, "There should be module for each file to parse")
@@ -274,7 +278,7 @@ extension Sourcery {
                     return result == .approved
                 }
                 .map {
-                    try FileParser(contents: $0.contents, path: $0.path, module: modules?[index])
+                    try parser(contents: $0.contents, path: $0.path, module: modules?[index])
             }
 
             var previousUpdate = 0
@@ -315,7 +319,7 @@ extension Sourcery {
         return (Types(types: types, typealiases: typealiases), functions, inlineRanges)
     }
 
-    private func loadOrParse(parser: FileParser, cachesPath: @autoclosure () -> Path?) throws -> FileParserResult {
+    private func loadOrParse(parser: FileParserType, cachesPath: @autoclosure () -> Path?) throws -> FileParserResult {
         guard let pathString = parser.path else { fatalError("Unable to retrieve \(String(describing: parser.path))") }
 
         guard let cachesPath = cachesPath() else {

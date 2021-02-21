@@ -23,12 +23,12 @@ class ParserComposerSpec: QuickSpec {
         describe("ParserComposer") {
             describe("uniqueTypesAndFunctions") {
                 func parse(_ code: String) -> [Type] {
-                    guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return [] }
+                    guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
                     return Composer.uniqueTypesAndFunctions(parserResult).types
                 }
 
                 func parseFunctions(_ code: String) -> [SourceryMethod] {
-                    guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return [] }
+                    guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
                     return Composer.uniqueTypesAndFunctions(parserResult).functions
                 }
 
@@ -662,7 +662,7 @@ class ParserComposerSpec: QuickSpec {
 
                 context("given typealiases") {
                     func parseTypealiases(_ code: String) -> [Typealias] {
-                        guard let parserResult = try? FileParser(contents: code).parse() else { fail(); return [] }
+                        guard let parserResult = try? parser(contents: code).parse() else { fail(); return [] }
                         return Composer.uniqueTypesAndFunctions(parserResult).typealiases
                     }
 
@@ -1197,7 +1197,7 @@ class ParserComposerSpec: QuickSpec {
                 context("given types within modules") {
                     func parseModules(_ modules: (name: String?, contents: String)...) -> [Type] {
                         let moduleResults = modules.compactMap {
-                            try? FileParser(contents: $0.contents, module: $0.name).parse()
+                            try? parser(contents: $0.contents, module: $0.name).parse()
                         }
 
                         let parserResult = moduleResults.reduce(FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: [])) { acc, next in
@@ -1450,7 +1450,7 @@ class ParserComposerSpec: QuickSpec {
                 context("given protocols of the same name in different modules") {
                     func parseModules(_ modules: (name: String?, contents: String)...) -> [Type] {
                         let moduleResults = modules.compactMap {
-                            try? FileParser(contents: $0.contents, module: $0.name).parse()
+                            try? parser(contents: $0.contents, module: $0.name).parse()
                         }
 
                         let parserResult = moduleResults.reduce(FileParserResult(path: nil, module: nil, types: [], functions: [], typealiases: [])) { acc, next in
