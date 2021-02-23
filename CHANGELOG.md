@@ -5,6 +5,7 @@
 ## AST Data Changes
 - initializers are now considered as static method not instance
 - default access level when not provided in code is internal everywhere
+- block annotations will be applied to associated values that are inside them
 
 ### Attributes
 - Name when not named will be using index same as associated value do e.g. objc(name) will have `0: name` as argument 

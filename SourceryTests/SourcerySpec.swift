@@ -13,7 +13,7 @@ class SourcerySpecTests: QuickSpec {
     override func spec() {
         func update(code: String, in path: Path) { guard (try? path.write(code)) != nil else { fatalError() } }
 
-        xdescribe ("Sourcery") {
+        describe ("Sourcery") {
             var outputDir = Path("/tmp")
             var output: Output { return Output(outputDir) }
 

@@ -12,13 +12,55 @@ import PathKit
 import SourceryRuntime
 import SourceryUtils
 
+extension TriviaPiece {
+    public var comment: String? {
+        switch self {
+        case .spaces,
+             .tabs,
+             .verticalTabs,
+             .formfeeds,
+             .newlines,
+             .carriageReturns,
+             .carriageReturnLineFeeds,
+             .garbageText:
+            return nil
+        case .lineComment(let comment),
+             .blockComment(let comment),
+             .docLineComment(let comment),
+             .docBlockComment(let comment):
+            return comment
+        }
+    }
+}
+
+
+protocol IdentifierSyntax: SyntaxProtocol {
+    var identifier: TokenSyntax { get }
+}
+
+extension ClassDeclSyntax: IdentifierSyntax {}
+extension StructDeclSyntax: IdentifierSyntax {}
+extension EnumDeclSyntax: IdentifierSyntax {}
+extension ProtocolDeclSyntax: IdentifierSyntax {}
+extension FunctionDeclSyntax: IdentifierSyntax {}
+extension TypealiasDeclSyntax: IdentifierSyntax {}
+extension OperatorDeclSyntax: IdentifierSyntax {}
+extension EnumCaseElementSyntax: IdentifierSyntax {}
+
 private class TreeCollector: SyntaxVisitor {
     var types = [Type]()
     var typealiases = [Typealias]()
     var methods = [SourceryMethod]()
     var imports = [String]()
-
     private var visitingType: Type?
+
+    let annotations: AnnotationsParser
+    let sourceLocationConverter: SourceLocationConverter
+
+    init(annotations: AnnotationsParser, sourceLocationConverter: SourceLocationConverter) {
+        self.annotations = annotations
+        self.sourceLocationConverter = sourceLocationConverter
+    }
 
     private func startVisitingType(_ builder: (_ parent: Type?) -> Type) {
         let type = builder(visitingType)
@@ -45,7 +87,7 @@ private class TreeCollector: SyntaxVisitor {
                 containedTypes: [],
                 typealiases: [],
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
+                annotations: annotations(from: node),
                 isGeneric: node.genericParameterClause?.genericParameterList.isEmpty == false
             )
         }
@@ -75,7 +117,7 @@ private class TreeCollector: SyntaxVisitor {
                 containedTypes: [],
                 typealiases: [],
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
+                annotations: annotations(from: node),
                 isGeneric: node.genericParameterClause?.genericParameterList.isEmpty == false
             )
         }
@@ -107,7 +149,7 @@ private class TreeCollector: SyntaxVisitor {
                 containedTypes: [],
                 typealiases: [],
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
+                annotations: annotations(from: node),
                 isGeneric: node.genericParameters?.genericParameterList.isEmpty == false
             )
         }
@@ -186,12 +228,11 @@ private class TreeCollector: SyntaxVisitor {
             }
 
             let isComputed = node.initializer == nil && hadGetter && !(visitingType is SourceryProtocol)
-            let isWritable = parent.letOrVarKeyword.description.trimmed == "var" && (!isComputed || hadSetter)
+            let isWritable = parent.letOrVarKeyword.tokens.contains { $0.tokenKind == .varKeyword  } && (!isComputed || hadSetter)
 
             let typeName = node.typeAnnotation.map { TypeName($0.type.description.trimmed) } ??
                 node.initializer.flatMap { inferType($0.value.description.trimmed) }
 
-            // TODO: parent.keyword -> let or var?
             return Variable(
                 name: node.pattern.description.trimmed,
                 typeName: typeName ?? TypeName("Unknown"),
@@ -201,7 +242,7 @@ private class TreeCollector: SyntaxVisitor {
                 isStatic: isStatic,
                 defaultValue: node.initializer?.value.description.trimmingCharacters(in: .whitespacesAndNewlines),
                 attributes: Attribute.from(parent.attributes, adding: attributesFromModifiers),
-                annotations: [:],
+                annotations: annotations(fromToken: parent.letOrVarKeyword),
                 definedInTypeName: visitingType.map { TypeName($0.name) }
             )
         }
@@ -227,7 +268,8 @@ private class TreeCollector: SyntaxVisitor {
                 associatedValues = paramList.enumerated().map { (idx, param) in
                     var name = param.firstName?.text.trimmed.nilIfNotValidParameterName
                     let secondName = param.secondName?.text.trimmed
-                    let type = param.type?.description.trimmed
+                    let type = param.type?.withoutLeadingTrivia().description.trimmed
+
                     let variadic = param.ellipsis != nil // TODO:
                     let defaultValue = param.defaultArgument?.value.description.trimmed
                     var externalName: String? = secondName
@@ -235,12 +277,13 @@ private class TreeCollector: SyntaxVisitor {
                         externalName = name ?? "\(idx)"
                     }
 
+                    let collectedAnnotations = param.type.map { annotations(fromToken: $0) }
                     return AssociatedValue(localName: name,
                                            externalName: externalName,
                                            typeName: type.map { TypeName($0) } ?? TypeName("Unknown"),
                                            type: nil,
                                            defaultValue: defaultValue,
-                                           annotations: [:]
+                                           annotations: collectedAnnotations ?? [:]
                     )
                 }
             }
@@ -271,7 +314,7 @@ private class TreeCollector: SyntaxVisitor {
                 name: caseNode.identifier.text.trimmed,
                 rawValue: rawValue,
                 associatedValues: associatedValues,
-                annotations: [:],
+                annotations: annotations(from: caseNode),
                 indirect: indirect
             )
         }
@@ -301,7 +344,7 @@ private class TreeCollector: SyntaxVisitor {
             isClass: false,
             isFailableInitializer: false,
             attributes: [:],
-            annotations:  [:],
+            annotations: [:], // node.deinitKeyword
             definedInTypeName: visitingType.map { TypeName($0.name) }
         )
 
@@ -333,8 +376,8 @@ private class TreeCollector: SyntaxVisitor {
                 containedTypes: [],
                 typealiases: [],
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
-                isGeneric: false // TODO: generic requirements
+                annotations: [:], // TODO:
+                isGeneric: false
             )
         }
         return .visitChildren
@@ -408,7 +451,7 @@ private class TreeCollector: SyntaxVisitor {
                 containedTypes: [],
                 typealiases: [],
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
+                annotations: annotations(from: node),
                 isGeneric: false // TODO: add associated type?
             )
         }
@@ -460,7 +503,7 @@ private class TreeCollector: SyntaxVisitor {
                 returnTypeName: TypeName(node.result.returnType.description.trimmed),
                 accessLevel: (readAccess, writeAccess),
                 attributes: Attribute.from(node.attributes, adding: node.modifiers?.map(Attribute.init)),
-                annotations: [:],
+                annotations: [:], // TODO:
                 definedInTypeName: TypeName(visitingType.name)
             )
         )
@@ -536,6 +579,25 @@ private class TreeCollector: SyntaxVisitor {
 
         return nil
     }
+
+
+    private func findLocation(syntax: SyntaxProtocol) -> SourceLocation {
+        return sourceLocationConverter.location(for: syntax.positionAfterSkippingLeadingTrivia)
+    }
+
+    private func annotations(from node: IdentifierSyntax) -> Annotations {
+        annotations.from(
+            location: findLocation(syntax: node.identifier),
+            precedingComments: node.leadingTrivia?.compactMap({ $0.comment }) ?? []
+        )
+    }
+
+    private func annotations(fromToken token: SyntaxProtocol) -> Annotations {
+        annotations.from(
+            location: findLocation(syntax: token),
+            precedingComments: token.leadingTrivia?.compactMap({ $0.comment }) ?? []
+        )
+    }
 }
 
 public final class FileParserSyntax: SyntaxVisitor, FileParserType {
@@ -547,6 +609,10 @@ public final class FileParserSyntax: SyntaxVisitor, FileParserType {
     public let modifiedDate: Date?
 
     public let initialContents: String
+ 
+    fileprivate var annotations: AnnotationsParser!
+    fileprivate var inlineRanges: [String: NSRange]!
+    fileprivate var inlineIndentations: [String: String]!
 
     /// Parses given contents.
     ///
@@ -566,8 +632,17 @@ public final class FileParserSyntax: SyntaxVisitor, FileParserType {
     ///
     /// - Returns: All types we could find.
     public func parse() throws -> FileParserResult {
-        let tree = try SyntaxParser.parse(source: initialContents)
-        let collector = TreeCollector()
+        // Inline handling
+        let inline = TemplateAnnotationsParser.parseAnnotations("inline", contents: initialContents)
+        let contents = inline.contents
+        inlineRanges = inline.annotatedRanges.mapValues { $0[0].range }
+        inlineIndentations = inline.annotatedRanges.mapValues { $0[0].indentation }
+        annotations = AnnotationsParser(contents: contents)
+
+        // Syntax walking
+        let tree = try SyntaxParser.parse(source: contents)
+        let sourceLocationConverter = SourceLocationConverter(file: path ?? "in-memory", tree: tree)
+        let collector = TreeCollector(annotations: annotations, sourceLocationConverter: sourceLocationConverter)
         collector.walk(tree)
 
         collector.types.forEach { $0.imports = collector.imports }
@@ -578,6 +653,8 @@ public final class FileParserSyntax: SyntaxVisitor, FileParserType {
           types: collector.types,
           functions: collector.methods,
           typealiases: collector.typealiases,
+          inlineRanges: inlineRanges,
+          inlineIndentations: inlineIndentations,
           modifiedDate: modifiedDate ?? Date(),
           sourceryVersion: SourceryVersion.current.value
         )

@@ -5,6 +5,7 @@
 
 import Foundation
 import SourceKittenFramework
+import SwiftSyntax
 
 public typealias Annotations = [String: NSObject]
 
@@ -57,6 +58,27 @@ public struct AnnotationsParser {
         return all
     }
 
+    func from(location: SwiftSyntax.SourceLocation, precedingComments: [String]) -> Annotations {
+        guard let lineNumber = location.line, let column = location.column else {
+            return [:]
+        }
+
+        var stop = false
+        var annotations = inlineFrom(line: (lineNumber, column), stop: &stop)
+        guard !stop else { return annotations }
+
+        for line in lines[0..<lineNumber-1].reversed() {
+            line.annotations.forEach { annotation in
+                AnnotationsParser.append(key: annotation.key, value: annotation.value, to: &annotations)
+            }
+            if line.type != .comment {
+                break
+            }
+        }
+
+        return annotations
+    }
+
     /// Extracts annotations from given source
     ///
     /// - Parameter source: Source to extract annotations for.
@@ -95,11 +117,14 @@ public struct AnnotationsParser {
             .trimmingCharacters(in: .whitespaces)
 
         guard !prefix.isEmpty else { return [:] }
-        var annotations = sourceLine.blockAnnotations //get block annotations for this line
+        var annotations = sourceLine.blockAnnotations // get block annotations for this line
+        sourceLine.annotations.forEach { annotation in  // TODO: verify
+            AnnotationsParser.append(key: annotation.key, value: annotation.value, to: &annotations)
+        }
 
         // `case` is not included in the key of enum case definition, so we strip it manually
-        prefix = prefix.trimmingSuffix("case").trimmingCharacters(in: .whitespaces)
-
+        let isInsideCaseDefinition = prefix.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("case")
+        prefix = prefix.trimmingPrefix("case").trimmingCharacters(in: .whitespaces)
         var inlineCommentFound = false
 
         while !prefix.isEmpty {
@@ -116,13 +141,13 @@ public struct AnnotationsParser {
             prefix = prefix[..<commentStart.lowerBound].trimmingCharacters(in: .whitespaces)
         }
 
-        if inlineCommentFound && !prefix.isEmpty {
+        if (inlineCommentFound || isInsideCaseDefinition) && !prefix.isEmpty {
             stop = true
             return annotations
         }
 
         // if previous line is not comment or has some trailing non-comment blocks
-        // we return currently agregated annotations
+        // we return currently aggregated annotations
         // as annotations on previous line belong to previous declaration
         if lineInfo.line - 2 > 0 {
             let previousLine = lines[lineInfo.line - 2]

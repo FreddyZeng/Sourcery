@@ -172,7 +172,7 @@ class FileParserVariableSpec: QuickSpec {
                     expect(parse("let name: Observable<Int>")).to(equal(Variable(name: "name", typeName: TypeName("Observable<Int>"), accessLevel: (read: .internal, write: .none), isComputed: false)))
                 }
 
-                xcontext("given it has sourcery annotations") {
+                context("given it has sourcery annotations") {
 
                     it("extracts single annotation") {
                         let expectedVariable = Variable(name: "name", typeName: TypeName("Int"), accessLevel: (read: .internal, write: .none), isComputed: true)
