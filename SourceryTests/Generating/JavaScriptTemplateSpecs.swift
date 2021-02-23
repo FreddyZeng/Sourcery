@@ -9,7 +9,7 @@ import PathKit
 
 class JavaScriptTemplateTests: QuickSpec {
     override func spec() {
-        xdescribe("JavaScriptTemplate") {
+        describe("JavaScriptTemplate") {
             let outputDir: Path = {
                 return Stubs.cleanTemporarySourceryDir()
             }()

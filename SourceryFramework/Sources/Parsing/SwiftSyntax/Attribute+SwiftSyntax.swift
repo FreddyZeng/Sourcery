@@ -1,3 +1,4 @@
+import Foundation
 import SourceryRuntime
 import SwiftSyntax
 
