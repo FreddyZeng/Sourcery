@@ -62,15 +62,25 @@ private class TreeCollector: SyntaxVisitor {
         self.sourceLocationConverter = sourceLocationConverter
     }
 
-    private func startVisitingType(_ builder: (_ parent: Type?) -> Type) {
+    private func startVisitingType(_ node: DeclSyntaxProtocol,_ builder: (_ parent: Type?) -> Type) {
         let type = builder(visitingType)
+
+        if let open = node.tokens.first(where: { $0.tokenKind == .leftBrace }),
+           let close = node.tokens.reversed().first(where: { $0.tokenKind == .rightBrace } ) {
+            let startLocation = open.endLocation(converter: sourceLocationConverter)
+            let endLocation = close.startLocation(converter: sourceLocationConverter)
+            type.bodyBytesRange = SourceryRuntime.BytesRange(offset: Int64(startLocation.offset), length: Int64(endLocation.offset - startLocation.offset ))
+        } else {
+            assertionFailure("What is going on?")
+        }
+
         visitingType?.containedTypes.append(type)
         visitingType = type
         types.append(type)
     }
 
     public override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
-        startVisitingType { parent in
+        startVisitingType(node) { parent in
             let access: AccessLevel = {
                 return node.modifiers?.lazy.compactMap(AccessLevel.init).first ?? .internal
             }()
@@ -100,7 +110,7 @@ private class TreeCollector: SyntaxVisitor {
 
     /// Called when visiting a `ClassDeclSyntax` node
     public override func visit(_ node: ClassDeclSyntax) -> SyntaxVisitorContinueKind {
-        startVisitingType { parent in
+        startVisitingType(node) { parent in
             let access: AccessLevel = {
                 return node.modifiers?.lazy.compactMap(AccessLevel.init).first ?? .internal
             }()
@@ -130,7 +140,7 @@ private class TreeCollector: SyntaxVisitor {
 
     /// Called when visiting an `EnumDeclSyntax` node
     public override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        startVisitingType { parent in
+        startVisitingType(node) { parent in
             let access: AccessLevel = {
                 return node.modifiers?.lazy.compactMap(AccessLevel.init).first ?? .internal
             }()
@@ -359,7 +369,7 @@ private class TreeCollector: SyntaxVisitor {
 
     /// Called when visiting an `ExtensionDeclSyntax` node
     public override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
-        startVisitingType { parent in
+        startVisitingType(node) { parent in
             let access: AccessLevel = {
                 return node.modifiers?.lazy.compactMap(AccessLevel.init).first ?? .internal
             }()
@@ -434,7 +444,7 @@ private class TreeCollector: SyntaxVisitor {
     }
 
     public override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
-        startVisitingType { parent in
+        startVisitingType(node) { parent in
             let access: AccessLevel = {
                 return node.modifiers?.lazy.compactMap(AccessLevel.init).first ?? .internal
             }()
@@ -645,7 +655,10 @@ public final class FileParserSyntax: SyntaxVisitor, FileParserType {
         let collector = TreeCollector(annotations: annotations, sourceLocationConverter: sourceLocationConverter)
         collector.walk(tree)
 
-        collector.types.forEach { $0.imports = collector.imports }
+        collector.types.forEach {
+            $0.imports = collector.imports
+            $0.__path = path
+        }
 
         return FileParserResult(
           path: path,

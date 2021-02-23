@@ -541,7 +541,6 @@ extension Sourcery {
             .sorted { lhs, rhs in
                 return lhs.rangeInFile.location > rhs.rangeInFile.location
             }.forEach { (arg) in
-
                 let (_, path, rangeInFile, toInsert, indentation) = arg
                 let content = try path.read(.utf8)
                 let updated = content.bridge().replacingCharacters(in: rangeInFile, with: indent(toInsert: toInsert, indentation: indentation))
