@@ -409,9 +409,22 @@ extension FileParserType {
           .trimmingCharacters(in: .whitespacesAndNewlines)
           .strippingComments()
           .trimmingCharacters(in: .whitespacesAndNewlines)
+
         // probably lazy property or default value with closure,
         // we expect explicit type, as we don't know return type
-        guard !(string.hasPrefix("{") && string.hasSuffix(")")) else { return nil }
+        guard !(string.hasPrefix("{") && string.hasSuffix(")")) else {
+            let body = String(string.dropFirst())
+            guard !body.contains("return") else {
+                return nil
+            }
+
+            // if there is no return statement it means the return value is the first expression
+            let components = body.components(separatedBy: "(", excludingDelimiterBetween: ("<[(", ")]>"))
+            if let first = components.first {
+                return inferType(from: first + "()")
+            }
+            return nil
+        }
 
         var inferredType: String
         if string == "nil" {
@@ -523,10 +536,13 @@ extension FileParserType {
             let components = string.components(separatedBy: "(", excludingDelimiterBetween: ("<[(", ")]>"))
 
             // scenario for '}' is for property settter / getter logic
-            if components.count > 1 && (string.last == ")" || string.last == "}") {
+            // scenario for ! is for unwrapped optional
+            let unwrappedOptional = string.last == "!"
+            if components.count > 1 && (string.last == ")" || string.last == "}" || unwrappedOptional) {
                 //initializer without `init`
                 inferredType = components[0]
-                return possibleEnumType(inferredType) ?? inferredType
+                let name = possibleEnumType(inferredType) ?? inferredType
+                return name + (unwrappedOptional ? "!" : "")
             } else {
                 return possibleEnumType(string)
             }

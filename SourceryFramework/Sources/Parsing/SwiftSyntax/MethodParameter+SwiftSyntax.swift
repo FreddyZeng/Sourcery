@@ -22,7 +22,7 @@ extension MethodParameter {
             // TODO: if I use baseType.description.trimmed I can simplify the TypeName so it avoids doing that
         }
 
-        let typeName = nodeName.map { TypeName($0, attributes: attributes) } ?? TypeName("Unknown", attributes: attributes)
+        let typeName = nodeName.map { TypeName($0, attributes: attributes) } ?? TypeName.unknown(description: node.description.trimmed, attributes: attributes)
 
         self.init(
             argumentLabel: firstName,

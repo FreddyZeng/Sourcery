@@ -30,6 +30,18 @@ class FileParserVariableSpec: QuickSpec {
                     return variable
                 }
 
+                it("infers types for variables when it's easy") {
+                    expect(parse("static let redirectButtonDefaultURL = URL(string: \"https://www.nytimes.com\")!")?.typeName).to(equal(TypeName("URL!")))
+
+                    expect(parse(
+                    """
+                    var pointPool = {
+                        ReusableItemPool<Point>(something: "cool")
+                    }()
+                    """
+                    )?.typeName).to(equal(TypeName("ReusableItemPool<Point>")))
+                }
+
                 it("reports variable mutability") {
                     expect(parse("var name: String")?.isMutable).to(beTrue())
                     expect(parse("let name: String")?.isMutable).to(beFalse())

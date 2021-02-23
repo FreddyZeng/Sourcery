@@ -27,4 +27,14 @@ extension String {
         return self
     }
 
+    func countInstances(of stringToFind: String) -> Int {
+        guard !stringToFind.isEmpty else { return 0 }
+        var count = 0
+        var searchRange: Range<String.Index>?
+        while let foundRange = range(of: stringToFind, options: [], range: searchRange) {
+            count += 1
+            searchRange = Range(uncheckedBounds: (lower: foundRange.upperBound, upper: endIndex))
+        }
+        return count
+    }
 }

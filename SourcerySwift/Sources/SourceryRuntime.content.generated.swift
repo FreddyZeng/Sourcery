@@ -4675,6 +4675,17 @@ public protocol Typed {
 
 }
 
+extension TypeName {
+    public static func unknown(description: String?, attributes: [String: Attribute] = [:]) -> TypeName {
+        if let description = description {
+            Log.info("<<unknown type, please add type attribution to \\(description)>>")
+        } else {
+            Log.info("<<unknown type, please add type attribution>>")
+        }
+        return TypeName("UnknownTypeSoAddTypeAttributionToVariable", attributes: attributes)
+    }
+}
+
 """),
     .init(name: "Typealias.swift", content:
 """

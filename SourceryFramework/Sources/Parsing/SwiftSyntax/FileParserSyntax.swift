@@ -245,7 +245,7 @@ private class TreeCollector: SyntaxVisitor {
 
             return Variable(
                 name: node.pattern.description.trimmed,
-                typeName: typeName ?? TypeName("Unknown"),
+                typeName: typeName ?? TypeName.unknown(description: node.description.trimmed),
                 type: nil,
                 accessLevel: (read: readAccess, write: isWritable ? writeAccess : .none),
                 isComputed: isComputed,
@@ -290,7 +290,7 @@ private class TreeCollector: SyntaxVisitor {
                     let collectedAnnotations = param.type.map { annotations(fromToken: $0) }
                     return AssociatedValue(localName: name,
                                            externalName: externalName,
-                                           typeName: type.map { TypeName($0) } ?? TypeName("Unknown"),
+                                           typeName: type.map { TypeName($0) } ?? TypeName.unknown(description: node.description.trimmed),
                                            type: nil,
                                            defaultValue: defaultValue,
                                            annotations: collectedAnnotations ?? [:]
@@ -538,7 +538,7 @@ private class TreeCollector: SyntaxVisitor {
 
         let alias = Typealias(
             aliasName: localName,
-            typeName: TypeName(typeName),
+            typeName: typeName.nilIfEmpty.map { TypeName($0) } ?? TypeName.unknown(description: node.description.trimmed),
             parent: visitingType
         )
 
