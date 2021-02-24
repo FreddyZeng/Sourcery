@@ -13,13 +13,14 @@ public struct Signature {
 
     public init(_ node: FunctionSignatureSyntax) {
         self.init(parameters: node.input.parameterList,
-             output: node.output?.returnType.description.trimmed,
-             throwsOrRethrowsKeyword: node.throwsOrRethrowsKeyword?.description.trimmed
+                  output: node.output?.returnType.description.trimmed,
+                  throwsOrRethrowsKeyword: node.throwsOrRethrowsKeyword?.description.trimmed
         )
     }
 
-    public init(parameters: FunctionParameterListSyntax, output: String?, throwsOrRethrowsKeyword: String?) {
-        input = parameters.map(MethodParameter.init)
+    public init(parameters: FunctionParameterListSyntax?, output: String?, throwsOrRethrowsKeyword: String?) {
+        input = parameters?
+          .map(MethodParameter.init) ?? []
         self.output = output
         self.throwsOrRethrowsKeyword = throwsOrRethrowsKeyword
     }
@@ -35,7 +36,7 @@ public struct Signature {
                 .compactMap { $0 }
                 .joined(separator: " ")
 
-            return (labels.nilIfEmpty ?? "_") + ": \(parameter.typeName.name)\(parameter.defaultValue.map { " = \($0)" } ?? "")"
+              return (labels.nilIfEmpty ?? "_") + ": \(parameter.typeName.name)\(parameter.defaultValue.map { " = \($0)" } ?? "")"
           }
           .joined(separator: ", ")
 

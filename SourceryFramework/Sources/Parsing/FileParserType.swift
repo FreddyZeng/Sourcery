@@ -5,14 +5,9 @@ import SourceryRuntime
 public protocol FileParserType {
 
     var path: String? { get }
-
-    var module: String? { get }
-
     var modifiedDate: Date? { get }
 
-    var initialContents: String { get }
-
-    /// Parses given contents.
+    /// Creates parser for a given contents and path.
     ///
     /// - Parameters:
     ///   - verbose: Whether it should log verbose

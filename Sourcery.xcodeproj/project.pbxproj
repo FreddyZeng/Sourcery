@@ -115,23 +115,32 @@
 		CDF5E71D1E671B8500664763 /* TypedSpec.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF5E71C1E671B8500664763 /* TypedSpec.generated.swift */; };
 		CDF80DA425E50E5800443FA1 /* Method+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80DA325E50E5800443FA1 /* Method+SwiftSyntax.swift */; };
 		CDF80DAC25E50EA500443FA1 /* Signature.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80DAB25E50EA500443FA1 /* Signature.swift */; };
-		CDF80DB425E50EC100443FA1 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80DB325E50EC100443FA1 /* String+Extensions.swift */; };
 		CDF80DC825E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80DC725E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift */; };
 		CDF80DE225E51C7E00443FA1 /* Attribute+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D754B5416F3B4595691B /* Attribute+SwiftSyntax.swift */; };
 		CDF80DF025E5435500443FA1 /* MethodParameter+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80DEF25E5435500443FA1 /* MethodParameter+SwiftSyntax.swift */; };
+		CDF80E2025E62B8C00443FA1 /* Syntax+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80E1F25E62B8C00443FA1 /* Syntax+Extensions.swift */; };
+		CDF80E2825E62BD900443FA1 /* SyntaxTreeCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF80E2725E62BD900443FA1 /* SyntaxTreeCollector.swift */; };
+		CDF80E4225E62E3C00443FA1 /* Variable+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D93CC178B2CAAEF06EA6 /* Variable+SwiftSyntax.swift */; };
 		E291D00F3B27A346A9ACCDA4 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D5CD7EEDC70CB423C0BE /* Extensions.swift */; };
 		E291D1C26BD65C6E109966AF /* CustomMatchers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D139206162204C48F396 /* CustomMatchers.swift */; };
+		E291D2220D8D415F72E5199F /* EnumCase+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DC79BD4B5129394101B8 /* EnumCase+SwiftSyntax.swift */; };
+		E291D249CFE8AAA6926B2796 /* Struct+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D6E4F91A811F4AC09E9D /* Struct+SwiftSyntax.swift */; };
 		E291D33EA3BB6FC777B3950E /* FolderWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DBAA16ABFED8C04CB42A /* FolderWatcher.swift */; };
 		E291D48FD07450FD0A09D92E /* EnumSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D3D222F05C42C246CB73 /* EnumSpec.swift */; };
 		E291D4E250805568DBC33F7E /* TypeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DF48D4FBBB43C1F7EF8A /* TypeSpec.swift */; };
 		E291D5115BBE9AB32275F38F /* VerifierSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DA3CE0BD58D0BF35138C /* VerifierSpec.swift */; };
 		E291D52FDFF7CF446E239C13 /* TemplateAnnotationsParserSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DC650271984B35942FE4 /* TemplateAnnotationsParserSpec.swift */; };
+		E291D54CE831297F59146FB7 /* Enum+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DFB06CF9491CF04C6125 /* Enum+SwiftSyntax.swift */; };
+		E291D5981E6D5F747D6E204F /* Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D6E6BC975B97EED3AE01 /* Modifier.swift */; };
 		E291D7114BA1479EC337A070 /* FileParserSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DD46F8BC3AA0E7E5FB4D /* FileParserSpec.swift */; };
+		E291D751C84D48A80353AE8E /* Protocol+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D97FC3C249E83DD5049D /* Protocol+SwiftSyntax.swift */; };
+		E291D87C3D0BF3E77775E695 /* Class+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D49E56C7250221412DA1 /* Class+SwiftSyntax.swift */; };
 		E291D8BB621560C275813B1F /* SourcerySpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DB1241856B9CFAAA25E7 /* SourcerySpec.swift */; };
 		E291D8DB06EC63770326562B /* Type+Stencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D04C9425FA502B37895D /* Type+Stencil.swift */; };
 		E291D90EC943AC5CBA99899A /* ComposerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DFE1A3D6905537EE86D9 /* ComposerSpec.swift */; };
 		E291DA3352C0EDD1EB8DDCB3 /* FileParser + VariableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D37EF6AA39833209828F /* FileParser + VariableSpec.swift */; };
 		E291DC5F2343BF3DE3334986 /* Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D2450093BB4B3A9ADFEC /* Stubs.swift */; };
+		E291DC64473CC35BE4B5B1DE /* Subscript+SwiftSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DC171BE75A37B36B83BE /* Subscript+SwiftSyntax.swift */; };
 		E291DCA363FD8EBF0455C712 /* Sourcery.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291DB6A95BAECDB6E978A76 /* Sourcery.swift */; };
 		E291DCD43D41B7F8D7AAF7B9 /* DiffableSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D30C065089B348EE7C42 /* DiffableSpec.swift */; };
 		E291DE1CB3B72BAA22DEDEDA /* StencilTemplateSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = E291D0D4A5AF091CD15550FD /* StencilTemplateSpec.swift */; };
@@ -359,9 +368,10 @@
 		CDF68B731E1C137E007C5396 /* Typed.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Typed.stencil; sourceTree = "<group>"; };
 		CDF80DA325E50E5800443FA1 /* Method+SwiftSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Method+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		CDF80DAB25E50EA500443FA1 /* Signature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signature.swift; sourceTree = "<group>"; };
-		CDF80DB325E50EC100443FA1 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		CDF80DC725E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessLevel+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		CDF80DEF25E5435500443FA1 /* MethodParameter+SwiftSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MethodParameter+SwiftSyntax.swift"; sourceTree = "<group>"; };
+		CDF80E1F25E62B8C00443FA1 /* Syntax+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Syntax+Extensions.swift"; sourceTree = "<group>"; };
+		CDF80E2725E62BD900443FA1 /* SyntaxTreeCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxTreeCollector.swift; sourceTree = "<group>"; };
 		D0C82AE0D8342A0606F1E8CE /* Pods_SourceryJS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SourceryJS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E291D04C9425FA502B37895D /* Type+Stencil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Type+Stencil.swift"; sourceTree = "<group>"; };
 		E291D0D4A5AF091CD15550FD /* StencilTemplateSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StencilTemplateSpec.swift; sourceTree = "<group>"; };
@@ -370,19 +380,27 @@
 		E291D30C065089B348EE7C42 /* DiffableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiffableSpec.swift; sourceTree = "<group>"; };
 		E291D37EF6AA39833209828F /* FileParser + VariableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "FileParser + VariableSpec.swift"; sourceTree = "<group>"; };
 		E291D3D222F05C42C246CB73 /* EnumSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnumSpec.swift; sourceTree = "<group>"; };
+		E291D49E56C7250221412DA1 /* Class+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Class+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291D5CD7EEDC70CB423C0BE /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E291D6548CB0B086F0574D1B /* Array+Parallel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Parallel.swift"; sourceTree = "<group>"; };
+		E291D6E4F91A811F4AC09E9D /* Struct+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Struct+SwiftSyntax.swift"; sourceTree = "<group>"; };
+		E291D6E6BC975B97EED3AE01 /* Modifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modifier.swift; sourceTree = "<group>"; };
 		E291D754B5416F3B4595691B /* Attribute+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Attribute+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291D8D53A557DA9E6D27C3C /* VariableSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VariableSpec.swift; sourceTree = "<group>"; };
+		E291D93CC178B2CAAEF06EA6 /* Variable+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Variable+SwiftSyntax.swift"; sourceTree = "<group>"; };
+		E291D97FC3C249E83DD5049D /* Protocol+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Protocol+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291DA3CE0BD58D0BF35138C /* VerifierSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifierSpec.swift; sourceTree = "<group>"; };
 		E291DB1241856B9CFAAA25E7 /* SourcerySpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourcerySpec.swift; sourceTree = "<group>"; };
 		E291DB6A95BAECDB6E978A76 /* Sourcery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sourcery.swift; sourceTree = "<group>"; };
 		E291DBAA16ABFED8C04CB42A /* FolderWatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderWatcher.swift; sourceTree = "<group>"; };
+		E291DC171BE75A37B36B83BE /* Subscript+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Subscript+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291DC650271984B35942FE4 /* TemplateAnnotationsParserSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateAnnotationsParserSpec.swift; sourceTree = "<group>"; };
+		E291DC79BD4B5129394101B8 /* EnumCase+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "EnumCase+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291DCF0A8E779EC67C9A37E /* AnnotationsParserSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnnotationsParserSpec.swift; sourceTree = "<group>"; };
 		E291DD46F8BC3AA0E7E5FB4D /* FileParserSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileParserSpec.swift; sourceTree = "<group>"; };
 		E291DF28602426F7A4C8D737 /* GeneratorSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratorSpec.swift; sourceTree = "<group>"; };
 		E291DF48D4FBBB43C1F7EF8A /* TypeSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeSpec.swift; sourceTree = "<group>"; };
+		E291DFB06CF9491CF04C6125 /* Enum+SwiftSyntax.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Enum+SwiftSyntax.swift"; sourceTree = "<group>"; };
 		E291DFE1A3D6905537EE86D9 /* ComposerSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposerSpec.swift; sourceTree = "<group>"; };
 		F1A3DAD7FDF3830E52EF0509 /* Pods-SourceryFramework.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SourceryFramework.release.xcconfig"; path = "Target Support Files/Pods-SourceryFramework/Pods-SourceryFramework.release.xcconfig"; sourceTree = "<group>"; };
 		F3C3A7B6CE0BCA036E0835CE /* Pods-Sourcery.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sourcery.release.xcconfig"; path = "Target Support Files/Pods-Sourcery/Pods-Sourcery.release.xcconfig"; sourceTree = "<group>"; };
@@ -817,15 +835,32 @@
 		CDF80D9625E50E4900443FA1 /* SwiftSyntax */ = {
 			isa = PBXGroup;
 			children = (
-				CDF80DB325E50EC100443FA1 /* String+Extensions.swift */,
-				CDF80DC725E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift */,
-				CDF80DAB25E50EA500443FA1 /* Signature.swift */,
-				CDF80DEF25E5435500443FA1 /* MethodParameter+SwiftSyntax.swift */,
-				CDF80DA325E50E5800443FA1 /* Method+SwiftSyntax.swift */,
+				CDF80E0C25E62B6600443FA1 /* AST */,
+				CDF80E1F25E62B8C00443FA1 /* Syntax+Extensions.swift */,
+				CDF80E2725E62BD900443FA1 /* SyntaxTreeCollector.swift */,
 				CDAB713025E2405E0027D85A /* FileParserSyntax.swift */,
-				E291D754B5416F3B4595691B /* Attribute+SwiftSyntax.swift */,
 			);
 			path = SwiftSyntax;
+			sourceTree = "<group>";
+		};
+		CDF80E0C25E62B6600443FA1 /* AST */ = {
+			isa = PBXGroup;
+			children = (
+				CDF80DAB25E50EA500443FA1 /* Signature.swift */,
+				CDF80DC725E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift */,
+				CDF80DEF25E5435500443FA1 /* MethodParameter+SwiftSyntax.swift */,
+				CDF80DA325E50E5800443FA1 /* Method+SwiftSyntax.swift */,
+				E291D754B5416F3B4595691B /* Attribute+SwiftSyntax.swift */,
+				E291D93CC178B2CAAEF06EA6 /* Variable+SwiftSyntax.swift */,
+				E291D6E4F91A811F4AC09E9D /* Struct+SwiftSyntax.swift */,
+				E291D49E56C7250221412DA1 /* Class+SwiftSyntax.swift */,
+				E291DFB06CF9491CF04C6125 /* Enum+SwiftSyntax.swift */,
+				E291DC79BD4B5129394101B8 /* EnumCase+SwiftSyntax.swift */,
+				E291D97FC3C249E83DD5049D /* Protocol+SwiftSyntax.swift */,
+				E291DC171BE75A37B36B83BE /* Subscript+SwiftSyntax.swift */,
+				E291D6E6BC975B97EED3AE01 /* Modifier.swift */,
+			);
+			path = AST;
 			sourceTree = "<group>";
 		};
 		E291D0AE58E620796FB2B57D /* Helpers */ = {
@@ -1649,21 +1684,30 @@
 			files = (
 				B5BCFA1721D1623D009DF652 /* AnnotationsParser.swift in Sources */,
 				CDAB713125E2405E0027D85A /* FileParserSyntax.swift in Sources */,
+				CDF80E4225E62E3C00443FA1 /* Variable+SwiftSyntax.swift in Sources */,
 				B5BCFA1821D1623D009DF652 /* Composer.swift in Sources */,
 				B5BCFA1121D1623D009DF652 /* Generator.swift in Sources */,
 				CDF80DAC25E50EA500443FA1 /* Signature.swift in Sources */,
+				CDF80E2825E62BD900443FA1 /* SyntaxTreeCollector.swift in Sources */,
 				CDF80DF025E5435500443FA1 /* MethodParameter+SwiftSyntax.swift in Sources */,
 				B5BCFA1421D1623D009DF652 /* Verifier.swift in Sources */,
 				CDAB714125E241900027D85A /* FileParserType.swift in Sources */,
 				B5BCFA1521D1623D009DF652 /* Substring.swift in Sources */,
-				CDF80DB425E50EC100443FA1 /* String+Extensions.swift in Sources */,
 				CDF80DE225E51C7E00443FA1 /* Attribute+SwiftSyntax.swift in Sources */,
+				CDF80E2025E62B8C00443FA1 /* Syntax+Extensions.swift in Sources */,
 				B5BCFA1621D1623D009DF652 /* InlineParser.swift in Sources */,
 				CDAB7CFC231E412C00ED8A32 /* Time.swift in Sources */,
 				B5BCFA1321D1623D009DF652 /* FileParser.swift in Sources */,
 				B5BCFA1221D1623D009DF652 /* Template.swift in Sources */,
 				CDF80DC825E50F0A00443FA1 /* AccessLevel+SwiftSyntax.swift in Sources */,
 				CDF80DA425E50E5800443FA1 /* Method+SwiftSyntax.swift in Sources */,
+				E291D249CFE8AAA6926B2796 /* Struct+SwiftSyntax.swift in Sources */,
+				E291D87C3D0BF3E77775E695 /* Class+SwiftSyntax.swift in Sources */,
+				E291D54CE831297F59146FB7 /* Enum+SwiftSyntax.swift in Sources */,
+				E291D2220D8D415F72E5199F /* EnumCase+SwiftSyntax.swift in Sources */,
+				E291D751C84D48A80353AE8E /* Protocol+SwiftSyntax.swift in Sources */,
+				E291DC64473CC35BE4B5B1DE /* Subscript+SwiftSyntax.swift in Sources */,
+				E291D5981E6D5F747D6E204F /* Modifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

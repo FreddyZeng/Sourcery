@@ -38,12 +38,14 @@ public struct AnnotationsParser {
 
     private let lines: [Line]
     private let contents: String
+    internal var sourceLocationConverter: SourceLocationConverter?
 
     /// Initializes parser
     ///
     /// - Parameter contents: Contents to parse
-    init(contents: String) {
+    init(contents: String, sourceLocationConverter: SourceLocationConverter? = nil) {
         self.lines = AnnotationsParser.parse(contents: contents)
+        self.sourceLocationConverter = sourceLocationConverter
         self.contents = contents
     }
 
@@ -58,7 +60,26 @@ public struct AnnotationsParser {
         return all
     }
 
-    func from(location: SwiftSyntax.SourceLocation, precedingComments: [String]) -> Annotations {
+    func annotations(from node: IdentifierSyntax) -> Annotations {
+        from(
+          location: findLocation(syntax: node.identifier),
+          precedingComments: node.leadingTrivia?.compactMap({ $0.comment }) ?? []
+        )
+    }
+
+    func annotations(fromToken token: SyntaxProtocol) -> Annotations {
+        from(
+          location: findLocation(syntax: token),
+          precedingComments: token.leadingTrivia?.compactMap({ $0.comment }) ?? []
+        )
+    }
+
+    // TODO: once removing SourceKitten just kill this optionality
+    private func findLocation(syntax: SyntaxProtocol) -> SwiftSyntax.SourceLocation {
+        return sourceLocationConverter!.location(for: syntax.positionAfterSkippingLeadingTrivia)
+    }
+
+    private func from(location: SwiftSyntax.SourceLocation, precedingComments: [String]) -> Annotations {
         guard let lineNumber = location.line, let column = location.column else {
             return [:]
         }

@@ -17,7 +17,9 @@ extension MethodParameter {
         }
 
         var attributes = [String: Attribute]()
-        if let node = node.type?.as(AttributedTypeSyntax.self) {
+        if let node = node
+          .type?
+          .as(AttributedTypeSyntax.self) {
             attributes = Attribute.from(node.attributes)
             // TODO: if I use baseType.description.trimmed I can simplify the TypeName so it avoids doing that
         }
@@ -25,13 +27,13 @@ extension MethodParameter {
         let typeName = nodeName.map { TypeName($0, attributes: attributes) } ?? TypeName.unknown(description: node.description.trimmed, attributes: attributes)
 
         self.init(
-            argumentLabel: firstName,
-            name: node.secondName?.text.trimmed ?? firstName ?? "",
-            typeName: typeName,
-            type: nil,
-            defaultValue: node.defaultArgument?.value.description.trimmed,
-            annotations: [:],
-            isInout: isInOut
+          argumentLabel: firstName,
+          name: node.secondName?.text.trimmed ?? firstName ?? "",
+          typeName: typeName,
+          type: nil,
+          defaultValue: node.defaultArgument?.value.description.trimmed,
+          annotations: [:],
+          isInout: isInOut
         )
     }
 }

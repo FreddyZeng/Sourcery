@@ -2,8 +2,8 @@ import SourceryRuntime
 import SwiftSyntax
 
 extension AccessLevel {
-    init?(_ modifier: DeclModifierSyntax) {
-        switch modifier.name.tokenKind {
+    init?(_ modifier: Modifier) {
+        switch modifier.tokenKind {
         case .publicKeyword:
             self = .public
         case .privateKeyword:
