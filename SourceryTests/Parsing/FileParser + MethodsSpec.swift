@@ -74,7 +74,7 @@ class FileParserMethodsSpec: QuickSpec {
                 it("extracts class method properly") {
                     expect(parse("class Foo { class func foo() {} }")).to(equal([
                         Class(name: "Foo", methods: [
-                            Method(name: "foo()", selectorName: "foo", parameters: [], isClass: true, attributes: ["class": Attribute.classAttribute], definedInTypeName: TypeName("Foo"))
+                            Method(name: "foo()", selectorName: "foo", parameters: [], isClass: true, attributes: ["class": Attribute(name: "class", arguments: [:], description: "class")], definedInTypeName: TypeName("Foo"))
                             ])
                         ]))
                 }
@@ -110,7 +110,7 @@ class FileParserMethodsSpec: QuickSpec {
                 it("extracts static method properly") {
                     expect(parse("class Foo { static func foo() {} }")).to(equal([
                         Class(name: "Foo", methods: [
-                            Method(name: "foo()", selectorName: "foo", isStatic: true, attributes: ["static": Attribute.staticAttribute], definedInTypeName: TypeName("Foo"))
+                            Method(name: "foo()", selectorName: "foo", isStatic: true, attributes: ["static": Attribute(name: "static", arguments: [:], description: "static")], definedInTypeName: TypeName("Foo"))
                             ])
                         ]))
                 }
