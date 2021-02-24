@@ -184,7 +184,7 @@ public final class FileParser: FileParserType {
                 return parseAssociatedType(source, definedIn: definedIn as? Type)
             default:
                 let nameSuffix = name.map { " \($0)" } ?? ""
-                Log.verbose("\(logPrefix) Unsupported entry \"\(access) \(kind)\(nameSuffix)\"")
+                Log.astWarning("\(logPrefix) Unsupported entry \"\(access) \(kind)\(nameSuffix)\"")
                 return nil
             }
 
@@ -577,7 +577,7 @@ extension FileParser {
         } else {
             let declaration = extract(.key, from: source)
             // swiftlint:disable:next force_unwrapping
-            Log.info("<<unknown type, please add type attribution to variable\(declaration != nil ? " '\(declaration!)'" : "")>>")
+            Log.astWarning("unknown type, please add type attribution to variable\(declaration != nil ? " '\(declaration!)'" : "")")
             typeName = TypeName("UnknownTypeSoAddTypeAttributionToVariable")
         }
 
@@ -742,7 +742,7 @@ extension FileParser {
         var rawValue: String?
 
         guard let keyString = extract(.key, from: source), let nameRange = keyString.range(of: name) else {
-            Log.warning("\(logPrefix)parseEnumCase: Unable to extract enum body from \(source)")
+            Log.astWarning("\(logPrefix)parseEnumCase: Unable to extract enum body from \(source)")
             return nil
         }
 
@@ -763,7 +763,7 @@ extension FileParser {
         case (nil, nil):
             break
         default:
-             Log.warning("\(logPrefix)parseEnumCase: Unknown enum case body format \(wrappedBody)")
+             Log.astWarning("\(logPrefix)parseEnumCase: Unknown enum case body format \(wrappedBody)")
         }
 
         let enumCase = EnumCase(name: name, rawValue: rawValue, associatedValues: associatedValues, annotations: annotations.from(source), indirect: isIndirect)

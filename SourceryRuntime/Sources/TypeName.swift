@@ -530,9 +530,9 @@ public protocol Typed {
 extension TypeName {
     public static func unknown(description: String?, attributes: [String: Attribute] = [:]) -> TypeName {
         if let description = description {
-            Log.info("<<unknown type, please add type attribution to \(description)>>")
+            Log.astWarning("Unknown type, please add type attribution to \(description)")
         } else {
-            Log.info("<<unknown type, please add type attribution>>")
+            Log.astWarning("Unknown type, please add type attribution")
         }
         return TypeName("UnknownTypeSoAddTypeAttributionToVariable", attributes: attributes)
     }

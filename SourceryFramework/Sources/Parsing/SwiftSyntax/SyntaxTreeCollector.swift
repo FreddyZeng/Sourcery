@@ -11,9 +11,13 @@ class SyntaxTreeCollector: SyntaxVisitor {
 
     let annotationsParser: AnnotationsParser
     let sourceLocationConverter: SourceLocationConverter
+    let module: String?
+    let file: String
 
-    init(annotations: AnnotationsParser, sourceLocationConverter: SourceLocationConverter) {
+    init(file: String, module: String?, annotations: AnnotationsParser, sourceLocationConverter: SourceLocationConverter) {
         self.annotationsParser = annotations
+        self.file = file
+        self.module = module
         self.sourceLocationConverter = sourceLocationConverter
     }
 
@@ -28,7 +32,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
             let endLocation = close.startLocation(converter: sourceLocationConverter)
             type.bodyBytesRange = SourceryRuntime.BytesRange(offset: Int64(startLocation.offset), length: Int64(endLocation.offset - startLocation.offset))
         } else {
-            assertionFailure("What is going on?")
+            logError("Unable to find bodyRange for \(type.name)")
         }
 
         visitingType?.containedTypes.append(type)
@@ -81,7 +85,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
 
     public override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let enumeration = visitingType as? Enum else {
-            assertionFailure("EnumCase shouldn't appear outside of enum declaration")
+            logError("EnumCase shouldn't appear outside of enum declaration \(node.description.trimmed)")
             return .skipChildren
         }
 
@@ -91,7 +95,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
 
     public override func visit(_ node: DeinitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let visitingType = visitingType else {
-            assertionFailure("Shouldn't happen")
+            logError("deinit shouldn't appear outside of type declaration \(node.description.trimmed)")
             return .skipChildren
         }
         visitingType.rawMethods.append(
@@ -103,10 +107,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
     /// Called when visiting an `ExtensionDeclSyntax` node
     public override func visit(_ node: ExtensionDeclSyntax) -> SyntaxVisitorContinueKind {
         startVisitingType(node) { parent in
-            let modifiers = node
-              .modifiers?
-              .map(Modifier.init)
-              ?? []
+            let modifiers = node.modifiers?.map(Modifier.init) ?? []
 
             return Type(
               name: node.extendedType.description.trimmingCharacters(in: .whitespaces),
@@ -151,7 +152,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
 
     public override func visit(_ node: InitializerDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let visitingType = visitingType else {
-            assertionFailure("Shouldn't happen")
+            logError("init shouldn't appear outside of type declaration \(node.description.trimmed)")
             return .skipChildren
         }
         let method = SourceryMethod(node, typeName: TypeName(visitingType.name))
@@ -172,7 +173,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
 
     public override func visit(_ node: SubscriptDeclSyntax) -> SyntaxVisitorContinueKind {
         guard let visitingType = visitingType else {
-            assertionFailure("Shouldn't happen")
+            logError("subscript shouldn't appear outside of type declaration \(node.description.trimmed)")
             return .skipChildren
         }
 
@@ -251,5 +252,14 @@ class SyntaxTreeCollector: SyntaxVisitor {
         }
 
         return nil
+    }
+
+    private func logError(_ message: Any) {
+        let prefix = file + ": "
+        if let module = module {
+            Log.astError("\(prefix) \(message) in module \(module)")
+        } else {
+            Log.astError("\(prefix) \(message)")
+        }
     }
 }

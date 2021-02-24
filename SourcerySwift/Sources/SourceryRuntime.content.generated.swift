@@ -2749,6 +2749,7 @@ public enum Log {
 
     public static var level: Level = .warnings
     public static var logBenchmarks: Bool = false
+    public static var logAST: Bool = false
 
     public static func error(_ message: Any) {
         log(level: .errors, "error: \\(message)")
@@ -2760,6 +2761,16 @@ public enum Log {
 
     public static func warning(_ message: Any) {
         log(level: .warnings, "warning: \\(message)")
+    }
+
+    public static func astWarning(_ message: Any) {
+        guard logAST else { return }
+        log(level: .warnings, "ast warning: \\(message)")
+    }
+
+    public static func astError(_ message: Any) {
+        guard logAST else { return }
+        log(level: .errors, "ast error: \\(message)")
     }
 
     public static func verbose(_ message: Any) {
@@ -4721,9 +4732,9 @@ public protocol Typed {
 extension TypeName {
     public static func unknown(description: String?, attributes: [String: Attribute] = [:]) -> TypeName {
         if let description = description {
-            Log.info("<<unknown type, please add type attribution to \\(description)>>")
+            Log.astWarning("Unknown type, please add type attribution to \\(description)")
         } else {
-            Log.info("<<unknown type, please add type attribution>>")
+            Log.astWarning("Unknown type, please add type attribution")
         }
         return TypeName("UnknownTypeSoAddTypeAttributionToVariable", attributes: attributes)
     }

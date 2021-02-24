@@ -2,6 +2,10 @@
 
 ---
 ## Master
+## Configuration changes
+- added `logAST` that will cause AST warnings and errors to be logged, default `false`
+- added `logBenchmarks` that will cause benchmark informations to be logged, default `false`
+
 ## AST Data Changes
 - initializers are now considered as static method not instance
 - default access level when not provided in code is internal everywhere
