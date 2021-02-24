@@ -22,7 +22,18 @@ public protocol FileParserType {
     func parse() throws -> FileParserResult
 }
 
+public enum ParserEngine {
+    case swiftSyntax
+    case sourceKit
+}
+
+public var parserEngine: ParserEngine = .swiftSyntax
+
 public func makeParser(for contents: String, path: Path? = nil, module: String? = nil) throws -> FileParserType {
-//    try FileParser(contents: contents, path: path, module: module)
-    try FileParserSyntax(contents: contents, path: path, module: module)
+    switch parserEngine {
+    case .sourceKit:
+        return try FileParser(contents: contents, path: path, module: module)
+    case .swiftSyntax:
+        return try FileParserSyntax(contents: contents, path: path, module: module)
+    }
 }

@@ -5,6 +5,7 @@
 ## Configuration changes
 - added `logAST` that will cause AST warnings and errors to be logged, default `false`
 - added `logBenchmarks` that will cause benchmark informations to be logged, default `false`
+- added `legacyParser` that will use SourceKit instead of SwiftSyntax, default `false`. This will be removed in next release.
 
 ## AST Data Changes
 - initializers are now considered as static method not instance
