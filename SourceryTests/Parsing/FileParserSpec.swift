@@ -30,6 +30,23 @@ class FileParserSpec: QuickSpec {
                 }
 
                 context("given it has sourcery annotations") {
+                    it("extract annotations from extensions properly") {
+                        let result = parse(
+                            """
+                            // sourcery: forceMockPublisher
+                            public extension AnyPublisher {}
+                            """
+                        )
+
+                        let annotations: [String: NSObject] = [
+                                "forceMockPublisher": NSNumber(value: true)
+                        ]
+
+                        expect(result.first?.annotations).to(equal(
+                            annotations
+                        ))
+                    }
+
                     it("extracts annotation block") {
                         let annotations = [
                                 ["skipEquality": NSNumber(value: true)],
@@ -83,6 +100,19 @@ class FileParserSpec: QuickSpec {
                                 .to(equal([
                                         Struct(name: "Foo", accessLevel: .internal, isExtension: false, variables: [])
                                 ]))
+                    }
+
+                    it("extracts import correctly") {
+                        expect(parse("""
+                                     import SimpleModule
+                                     import SpecificModule.ClassName
+                                     struct Foo { }
+                                     """))
+                                .to(equal([
+                                        Struct(name: "Foo", accessLevel: .internal, isExtension: false, variables: [])
+                                ]))
+
+                        /// add test to verify that Multipath.Module.Name is still resolved correctly for type matching
                     }
 
                     it("extracts properly with access information") {

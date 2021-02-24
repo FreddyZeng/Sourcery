@@ -120,10 +120,8 @@ class SyntaxTreeCollector: SyntaxVisitor {
               inheritedTypes: node.inheritanceClause?.inheritedTypeCollection.map { $0.typeName.description.trimmed } ?? [],
               containedTypes: [],
               typealiases: [],
-              attributes: Attribute.from(node.attributes, adding:
-                modifiers
-                .map(Attribute.init)),
-              annotations: [:], // TODO:
+              attributes: Attribute.from(node.attributes, adding: modifiers.map(Attribute.init)),
+              annotations: annotationsParser.annotations(fromToken: node.extensionKeyword), 
               isGeneric: false
             )
         }
