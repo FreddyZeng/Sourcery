@@ -41,9 +41,9 @@ import Foundation
     }
 
     // sourcery: skipDescription
-    /// Global type name including module name
+    /// Global type name including module name, unless it's an extension of unknown type
     public var globalName: String {
-        guard let module = module else { return name }
+        guard let module = module, !isExtension else { return name }
         return "\(module).\(name)"
     }
 

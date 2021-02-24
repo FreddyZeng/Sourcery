@@ -1223,6 +1223,28 @@ class ParserComposerSpec: QuickSpec {
                         return Composer.uniqueTypesAndFunctions(parserResult).types
                     }
 
+                    it("doesn't automatically add module name to unknown types but keeps the info in the AST via module property") {
+                        let extensionType = Type(name: "AnyPublisher", isExtension: true)
+                        extensionType.module = "MyModule"
+
+                        let types = parseModules(
+                            (name: "MyModule", contents:
+                                """
+                                extension AnyPublisher {}
+                                struct Foo {
+                                    var publisher: AnyPublisher<TimeInterval, Never>
+                                }
+                                """)
+                        )
+                        let publisher = types.first
+                        let fooVariable = types.last?.variables.last
+
+                        expect(publisher).to(equal(extensionType))
+                        expect(publisher?.globalName).to(equal("AnyPublisher"))
+
+                        expect(fooVariable?.typeName.generic?.name).to(equal("AnyPublisher"))
+                    }
+
                     context("when using global names") {
 
                         it("extends type with extension") {
@@ -1364,7 +1386,7 @@ class ParserComposerSpec: QuickSpec {
                             let expectedFoo = Struct(name: "Foo", variables: [
                                 Variable(name: "bar", typeName: TypeName("Bar"), type: expectedBar, accessLevel: (.internal, .none), definedInTypeName: TypeName("Foo")),
                                 Variable(name: "bazbars", typeName: TypeName("Baz<Bar>", generic: .init(name: "ModuleA.Foo.Baz", typeParameters: [.init(typeName: .init("ModuleA.Foo.Bar"))])), type: expectedBaz, accessLevel: (.internal, .none), definedInTypeName: TypeName("Foo")),
-                                Variable(name: "bazDoubles", typeName: TypeName("Baz<Double>", generic: .init(name: "ModuleA.Foo.Baz", typeParameters: [.init(typeName: .init("ModuleA.Double"))])), type: expectedBaz, accessLevel: (.internal, .none), definedInTypeName: TypeName("Foo")),
+                                Variable(name: "bazDoubles", typeName: TypeName("Baz<Double>", generic: .init(name: "ModuleA.Foo.Baz", typeParameters: [.init(typeName: .init("Double"))])), type: expectedBaz, accessLevel: (.internal, .none), definedInTypeName: TypeName("Foo")),
                                 Variable(name: "bazInts", typeName: TypeName("Baz<Int>", generic: .init(name: "ModuleA.Foo.Baz", typeParameters: [.init(typeName: .init("Int"))])), type: expectedBaz, accessLevel: (.internal, .none), definedInTypeName: TypeName("Foo"))
                             ], containedTypes: [expectedBar, expectedBaz])
                             expectedFoo.module = "ModuleA"

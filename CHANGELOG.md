@@ -11,6 +11,8 @@
 - initializers are now considered as static method not instance
 - default access level when not provided in code is internal everywhere
 - block annotations will be applied to associated values that are inside them
+- extensions of unknown types will not have the definition module name added in their `globalName` property. (You can still access it via `module`)
+- if you had some weird formatting around syntax declarations (newlines in-between etc) the AST data should be cleaned up rather than trying to reproduce that style
 
 ### Attributes
 - Name when not named will be using index same as associated value do e.g. objc(name) will have `0: name` as argument 
