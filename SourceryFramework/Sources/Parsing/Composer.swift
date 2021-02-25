@@ -57,7 +57,9 @@ public struct Composer {
         parsedTypes.forEach { type in
             type.inheritedTypes = type.inheritedTypes.map { actualTypeName(for: TypeName($0), modules: modules, typealiases: resolvedTypealiases) ?? $0 }
 
-            let uniqueType = unique[type.globalName] ?? typeFromModule(type.name, modules: modules) ?? type.imports.lazy.compactMap { modules[$0]?[type.name] }.first
+            let uniqueType = unique[type.globalName] ??
+                typeFromModule(type.name, modules: modules) ??
+                type.imports.lazy.compactMap { modules[$0.moduleName]?[type.name] }.first
 
             guard let current = uniqueType else {
                 // for unknown types we still store their extensions
@@ -419,7 +421,7 @@ public struct Composer {
 
         let explicitModulesAtDeclarationSite: [String] = [
             containedInType?.module.map { [$0] } ?? [],    // main module for this typename
-            containedInType?.imports ?? []    // imported modules
+            containedInType?.imports.map { $0.moduleName } ?? []    // imported modules
         ]
         .flatMap { $0 }
 

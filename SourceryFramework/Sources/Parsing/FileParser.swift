@@ -104,7 +104,7 @@ public final class FileParser: FileParserType {
         let source = try Structure(file: file).dictionary
 
         let (types, functions, typealiases) = try parseTypes(source)
-        let imports = try parseImports(contents)
+        let imports = try parseImports(contents).map { Import(path: $0) }
         types.forEach { $0.imports = imports }
         return FileParserResult(path: path, module: module, types: types, functions: functions, typealiases: typealiases, inlineRanges: inlineRanges, inlineIndentations: inlineIndentations, modifiedDate: modifiedDate ?? Date(), sourceryVersion: SourceryVersion.current.value)
     }

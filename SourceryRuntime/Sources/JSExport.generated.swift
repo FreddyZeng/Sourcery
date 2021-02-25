@@ -53,7 +53,7 @@ extension BytesRange: BytesRangeAutoJSExport {}
     var kind: String { get }
     var isFinal: Bool { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -124,7 +124,7 @@ extension DictionaryType: DictionaryTypeAutoJSExport {}
     var based: [String: String] { get }
     var hasAssociatedValues: Bool { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -187,6 +187,15 @@ extension GenericType: GenericTypeAutoJSExport {}
 
 extension GenericTypeParameter: GenericTypeParameterAutoJSExport {}
 
+@objc protocol ImportAutoJSExport: JSExport {
+    var kind: String? { get }
+    var path: String { get }
+    var description: String { get }
+    var moduleName: String { get }
+}
+
+extension Import: ImportAutoJSExport {}
+
 @objc protocol MethodAutoJSExport: JSExport {
     var name: String { get }
     var selectorName: String { get }
@@ -242,7 +251,7 @@ extension MethodParameter: MethodParameterAutoJSExport {}
     var kind: String { get }
     var associatedTypes: [String: AssociatedType] { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -282,10 +291,11 @@ extension Protocol: ProtocolAutoJSExport {}
 
 
 
+
 @objc protocol StructAutoJSExport: JSExport {
     var kind: String { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -375,7 +385,7 @@ extension TupleType: TupleTypeAutoJSExport {}
 
 @objc protocol TypeAutoJSExport: JSExport {
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var kind: String { get }
     var accessLevel: String { get }
     var name: String { get }

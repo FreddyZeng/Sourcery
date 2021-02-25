@@ -103,16 +103,18 @@ class FileParserSpec: QuickSpec {
                     }
 
                     it("extracts import correctly") {
+                        let expectedStruct = Struct(name: "Foo", accessLevel: .internal, isExtension: false, variables: [])
+                        expectedStruct.imports = [
+                            Import(path: "SimpleModule"),
+                            Import(path: "SpecificModule.ClassName")
+                        ]
+
                         expect(parse("""
                                      import SimpleModule
                                      import SpecificModule.ClassName
-                                     struct Foo { }
-                                     """))
-                                .to(equal([
-                                        Struct(name: "Foo", accessLevel: .internal, isExtension: false, variables: [])
-                                ]))
-
-                        /// add test to verify that Multipath.Module.Name is still resolved correctly for type matching
+                                     struct Foo {}
+                                     """).first)
+                                .to(equal(expectedStruct))
                     }
 
                     it("extracts properly with access information") {

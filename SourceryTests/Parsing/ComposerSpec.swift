@@ -1298,7 +1298,7 @@ class ParserComposerSpec: QuickSpec {
 
                             let expectedFoo = Struct(name: "Foo", variables: [Variable(name: "bar", typeName: TypeName("Bar"), type: expectedBarA, definedInTypeName: TypeName("Foo"))])
                             expectedFoo.module = "ModuleB"
-                            expectedFoo.imports = ["ModuleA"]
+                            expectedFoo.imports = [Import(path: "ModuleA")]
 
                             let expectedBarC = Struct(name: "Bar")
                             expectedBarC.module = "ModuleC"
@@ -1308,6 +1308,32 @@ class ParserComposerSpec: QuickSpec {
                                 (name: "ModuleB", contents:
                                     """
                                     import ModuleA
+                                    struct Foo { var bar: Bar }
+                                    """
+                                ),
+                                (name: "ModuleC", contents: "struct Bar {}")
+                            )
+
+                            expect(types).to(equal([expectedBarA, expectedFoo, expectedBarC]))
+                            expect(types.first(where: { $0.name == "Foo" })?.variables.first?.type).to(equal(expectedBarA))
+                        }
+
+                        it("resolves variable type properly even when using specialized imports") {
+                            let expectedBarA = Struct(name: "Bar")
+                            expectedBarA.module = "ModuleA.Submodule"
+
+                            let expectedFoo = Struct(name: "Foo", variables: [Variable(name: "bar", typeName: TypeName("Bar"), type: expectedBarA, definedInTypeName: TypeName("Foo"))])
+                            expectedFoo.module = "ModuleB"
+                            expectedFoo.imports = [Import(path: "ModuleA.Submodule.Bar", kind: "struct")]
+
+                            let expectedBarC = Struct(name: "Bar")
+                            expectedBarC.module = "ModuleC"
+
+                            let types = parseModules(
+                                (name: "ModuleA.Submodule", contents: "struct Bar {}"),
+                                (name: "ModuleB", contents:
+                                    """
+                                    import struct ModuleA.Submodule.Bar
                                     struct Foo { var bar: Bar }
                                     """
                                 ),

@@ -65,6 +65,8 @@ extension GenericType: NSCoding {}
 
 extension GenericTypeParameter: NSCoding {}
 
+extension Import: NSCoding {}
+
 extension Method: NSCoding {}
 
 extension MethodParameter: NSCoding {}

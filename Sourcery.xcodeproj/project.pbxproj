@@ -103,6 +103,8 @@
 		CD53EE661D897C1F00F5886C /* Source in Resources */ = {isa = PBXBuildFile; fileRef = CD53EE651D897C1F00F5886C /* Source */; };
 		CD53EE681D897D2900F5886C /* Templates in Resources */ = {isa = PBXBuildFile; fileRef = CD53EE671D897D2900F5886C /* Templates */; };
 		CD6008F525E248740025EB14 /* lib_InternalSwiftSyntaxParser.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CD6008F425E248740025EB14 /* lib_InternalSwiftSyntaxParser.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		CD801FD225E7E6DC00658CFC /* SwiftSyntax in Frameworks */ = {isa = PBXBuildFile; productRef = CD6568E025E2464D002F1B4F /* SwiftSyntax */; };
+		CD801FF925E7EC6100658CFC /* Import.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD801FF825E7EC6000658CFC /* Import.swift */; };
 		CD83A1861EA4C5D7003E0E7D /* Errors in Resources */ = {isa = PBXBuildFile; fileRef = CD83A1851EA4C5D7003E0E7D /* Errors */; };
 		CD9C459D1DFAF76D00161C2C /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9C459C1DFAF76D00161C2C /* main.swift */; };
 		CDAB713125E2405E0027D85A /* FileParserSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDAB713025E2405E0027D85A /* FileParserSyntax.swift */; };
@@ -354,6 +356,7 @@
 		CD754C951D853F000082B512 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CD754C9A1D853F000082B512 /* SourceryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SourceryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD754CA01D853F000082B512 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CD801FF825E7EC6000658CFC /* Import.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Import.swift; path = SourceryRuntime/Sources/Import.swift; sourceTree = SOURCE_ROOT; };
 		CD83A1851EA4C5D7003E0E7D /* Errors */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Errors; sourceTree = "<group>"; };
 		CD9C459C1DFAF76D00161C2C /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		CDAB713025E2405E0027D85A /* FileParserSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileParserSyntax.swift; sourceTree = "<group>"; };
@@ -458,6 +461,7 @@
 				47635CB021DA342600B2D5A1 /* SourceryUtils.framework in Frameworks */,
 				B5BCFA0021D161BF009DF652 /* SourceryRuntime.framework in Frameworks */,
 				60CC7E378065D25B8D555BCF /* Pods_SourceryFramework.framework in Frameworks */,
+				CD801FD225E7E6DC00658CFC /* SwiftSyntax in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +548,7 @@
 		09334E221EB914420092806F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				CD801FF825E7EC6000658CFC /* Import.swift */,
 				09334E621EB916040092806F /* AccessLevel.swift */,
 				09334E631EB916040092806F /* Annotations.swift */,
 				F63E56CD24BCB13700715CD1 /* AssociatedType.swift */,
@@ -1145,7 +1150,7 @@
 			);
 			name = SourceryFramework;
 			packageProductDependencies = (
-				CD6568E025E2464D002F1B4F,
+				CD6568E025E2464D002F1B4F /* SwiftSyntax */,
 			);
 			productName = SourceryFramework;
 			productReference = B5BCF9F321D161B5009DF652 /* SourceryFramework.framework */;
@@ -1261,7 +1266,7 @@
 			);
 			mainGroup = CD754C821D853F000082B512;
 			packageReferences = (
-				CDAB712625E240410027D85A,
+				CDAB712625E240410027D85A /* XCRemoteSwiftPackageReference "swift-syntax" */,
 			);
 			productRefGroup = CD754C8C1D853F000082B512 /* Products */;
 			projectDirPath = "";
@@ -1670,6 +1675,7 @@
 				09334E601EB915E00092806F /* Typed.generated.swift in Sources */,
 				09334E7E1EB916040092806F /* Type.swift in Sources */,
 				09334E851EB9163F0092806F /* Extensions.swift in Sources */,
+				CD801FF925E7EC6100658CFC /* Import.swift in Sources */,
 				6D31FC5F1F0C2DE4000E77E3 /* Definition.swift in Sources */,
 				09334E781EB916040092806F /* FileParserResult.swift in Sources */,
 				09334E5C1EB915E00092806F /* Description.generated.swift in Sources */,
@@ -2526,7 +2532,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		CDAB712625E240410027D85A = {
+		CDAB712625E240410027D85A /* XCRemoteSwiftPackageReference "swift-syntax" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-syntax.git";
 			requirement = {
@@ -2537,9 +2543,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		CD6568E025E2464D002F1B4F = {
+		CD6568E025E2464D002F1B4F /* SwiftSyntax */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CDAB712625E240410027D85A;
+			package = CDAB712625E240410027D85A /* XCRemoteSwiftPackageReference "swift-syntax" */;
 			productName = SwiftSyntax;
 		};
 /* End XCSwiftPackageProductDependency section */

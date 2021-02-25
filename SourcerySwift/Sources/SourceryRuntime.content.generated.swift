@@ -422,6 +422,8 @@ extension GenericType: NSCoding {}
 
 extension GenericTypeParameter: NSCoding {}
 
+extension Import: NSCoding {}
+
 extension Method: NSCoding {}
 
 extension MethodParameter: NSCoding {}
@@ -965,6 +967,18 @@ extension GenericTypeParameter: Diffable {
             return results
         }
         results.append(contentsOf: DiffableResult(identifier: "typeName").trackDifference(actual: self.typeName, expected: castObject.typeName))
+        return results
+    }
+}
+extension Import: Diffable {
+    @objc func diffAgainst(_ object: Any?) -> DiffableResult {
+        let results = DiffableResult()
+        guard let castObject = object as? Import else {
+            results.append("Incorrect type <expected: Import, received: \\(Swift.type(of: object))>")
+            return results
+        }
+        results.append(contentsOf: DiffableResult(identifier: "kind").trackDifference(actual: self.kind, expected: castObject.kind))
+        results.append(contentsOf: DiffableResult(identifier: "path").trackDifference(actual: self.path, expected: castObject.path))
         return results
     }
 }
@@ -1769,6 +1783,15 @@ extension GenericTypeParameter {
         return true
     }
 }
+extension Import {
+    /// :nodoc:
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Import else { return false }
+        if self.kind != rhs.kind { return false }
+        if self.path != rhs.path { return false }
+        return true
+    }
+}
 extension Method {
     /// :nodoc:
     override public func isEqual(_ object: Any?) -> Bool {
@@ -2251,6 +2274,63 @@ import Foundation
 }
 
 """),
+    .init(name: "Import.swift", content:
+"""
+import Foundation
+
+/// Defines import type
+@objcMembers public class Import: NSObject, SourceryModelWithoutDescription {
+    /// Import kind, e.g. class, struct in `import class Module.ClassName`
+    public var kind: String?
+
+    /// Import path
+    public var path: String
+
+    /// :nodoc:
+    public init(path: String, kind: String? = nil) {
+        self.path = path
+        self.kind = kind
+    }
+
+    /// Full import value e.g. `import struct Module.StructName`
+    public override var description: String {
+        if let kind = kind {
+            return "\\(kind) \\(path)"
+        }
+
+        return path
+    }
+
+    /// Returns module name from a import, e.g. if you had `import struct Module.Submodule.Struct` it will return `Module.Submodule`
+    public var moduleName: String {
+        if kind != nil {
+            if let idx = path.lastIndex(of: ".") {
+                return String(path[..<idx])
+            } else {
+                return path
+            }
+        } else {
+            return path
+        }
+    }
+
+// sourcery:inline:Import.AutoCoding
+        /// :nodoc:
+        required public init?(coder aDecoder: NSCoder) {
+            self.kind = aDecoder.decode(forKey: "kind")
+            guard let path: String = aDecoder.decode(forKey: "path") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["path"])); fatalError() }; self.path = path
+        }
+
+        /// :nodoc:
+        public func encode(with aCoder: NSCoder) {
+            aCoder.encode(self.kind, forKey: "kind")
+            aCoder.encode(self.path, forKey: "path")
+        }
+
+// sourcery:end
+}
+
+"""),
     .init(name: "JSExport.generated.swift", content:
 """
 // Generated using Sourcery 1.3.0 — https://github.com/krzysztofzablocki/Sourcery
@@ -2308,7 +2388,7 @@ extension BytesRange: BytesRangeAutoJSExport {}
     var kind: String { get }
     var isFinal: Bool { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -2379,7 +2459,7 @@ extension DictionaryType: DictionaryTypeAutoJSExport {}
     var based: [String: String] { get }
     var hasAssociatedValues: Bool { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -2442,6 +2522,15 @@ extension GenericType: GenericTypeAutoJSExport {}
 
 extension GenericTypeParameter: GenericTypeParameterAutoJSExport {}
 
+@objc protocol ImportAutoJSExport: JSExport {
+    var kind: String? { get }
+    var path: String { get }
+    var description: String { get }
+    var moduleName: String { get }
+}
+
+extension Import: ImportAutoJSExport {}
+
 @objc protocol MethodAutoJSExport: JSExport {
     var name: String { get }
     var selectorName: String { get }
@@ -2497,7 +2586,7 @@ extension MethodParameter: MethodParameterAutoJSExport {}
     var kind: String { get }
     var associatedTypes: [String: AssociatedType] { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -2537,10 +2626,11 @@ extension Protocol: ProtocolAutoJSExport {}
 
 
 
+
 @objc protocol StructAutoJSExport: JSExport {
     var kind: String { get }
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var accessLevel: String { get }
     var name: String { get }
     var globalName: String { get }
@@ -2630,7 +2720,7 @@ extension TupleType: TupleTypeAutoJSExport {}
 
 @objc protocol TypeAutoJSExport: JSExport {
     var module: String? { get }
-    var imports: [String] { get }
+    var imports: [Import] { get }
     var kind: String { get }
     var accessLevel: String { get }
     var name: String { get }
@@ -3130,7 +3220,9 @@ protocol AutoCoding {}
 protocol AutoJSExport {}
 
 /// Phantom protocol for NSCoding, Equatable and Diffable
-protocol SourceryModel: AutoDiffable, AutoEquatable, AutoCoding, AutoDescription, AutoJSExport {}
+protocol SourceryModelWithoutDescription: AutoDiffable, AutoEquatable, AutoCoding, AutoJSExport {}
+
+protocol SourceryModel: SourceryModelWithoutDescription, AutoDescription {}
 
 """),
     .init(name: "Protocol.swift", content:
@@ -3772,8 +3864,8 @@ import Foundation
     /// :nodoc:
     public var module: String?
 
-    /// :nodoc:
-    public var imports: [String] = []
+    /// Imports that existed in the file that contained this type declaration
+    public var imports: [Import] = []
 
     // All local typealiases
     // sourcery: skipJSExport
@@ -4129,7 +4221,7 @@ import Foundation
         /// :nodoc:
         required public init?(coder aDecoder: NSCoder) {
             self.module = aDecoder.decode(forKey: "module")
-            guard let imports: [String] = aDecoder.decode(forKey: "imports") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["imports"])); fatalError() }; self.imports = imports
+            guard let imports: [Import] = aDecoder.decode(forKey: "imports") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["imports"])); fatalError() }; self.imports = imports
             guard let typealiases: [String: Typealias] = aDecoder.decode(forKey: "typealiases") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["typealiases"])); fatalError() }; self.typealiases = typealiases
             self.isExtension = aDecoder.decode(forKey: "isExtension")
             guard let accessLevel: String = aDecoder.decode(forKey: "accessLevel") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["accessLevel"])); fatalError() }; self.accessLevel = accessLevel

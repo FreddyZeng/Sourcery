@@ -11,8 +11,8 @@ import Foundation
     /// :nodoc:
     public var module: String?
 
-    /// :nodoc:
-    public var imports: [String] = []
+    /// Imports that existed in the file that contained this type declaration
+    public var imports: [Import] = []
 
     // All local typealiases
     // sourcery: skipJSExport
@@ -368,7 +368,7 @@ import Foundation
         /// :nodoc:
         required public init?(coder aDecoder: NSCoder) {
             self.module = aDecoder.decode(forKey: "module")
-            guard let imports: [String] = aDecoder.decode(forKey: "imports") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["imports"])); fatalError() }; self.imports = imports
+            guard let imports: [Import] = aDecoder.decode(forKey: "imports") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["imports"])); fatalError() }; self.imports = imports
             guard let typealiases: [String: Typealias] = aDecoder.decode(forKey: "typealiases") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["typealiases"])); fatalError() }; self.typealiases = typealiases
             self.isExtension = aDecoder.decode(forKey: "isExtension")
             guard let accessLevel: String = aDecoder.decode(forKey: "accessLevel") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["accessLevel"])); fatalError() }; self.accessLevel = accessLevel

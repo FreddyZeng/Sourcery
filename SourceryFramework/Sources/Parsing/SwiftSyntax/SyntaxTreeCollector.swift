@@ -6,7 +6,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
     var types = [Type]()
     var typealiases = [Typealias]()
     var methods = [SourceryMethod]()
-    var imports = [String]()
+    var imports = [Import]()
     private var visitingType: Type?
 
     let annotationsParser: AnnotationsParser
@@ -144,7 +144,7 @@ class SyntaxTreeCollector: SyntaxVisitor {
     }
 
     public override func visit(_ node: ImportDeclSyntax) -> SyntaxVisitorContinueKind {
-        imports.append(node.path.description.trimmed)
+        imports.append(Import(path: node.path.description.trimmed, kind: node.importKind?.text.trimmed))
         return .skipChildren
     }
 

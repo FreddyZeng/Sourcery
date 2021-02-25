@@ -142,6 +142,15 @@ extension GenericTypeParameter {
         return true
     }
 }
+extension Import {
+    /// :nodoc:
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let rhs = object as? Import else { return false }
+        if self.kind != rhs.kind { return false }
+        if self.path != rhs.path { return false }
+        return true
+    }
+}
 extension Method {
     /// :nodoc:
     override public func isEqual(_ object: Any?) -> Bool {
