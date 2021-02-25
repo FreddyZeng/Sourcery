@@ -37,6 +37,11 @@ class Sourcery {
     // content annotated with file annotations per file path to write it to
     fileprivate var fileAnnotatedContent: [Path: [String]] = [:]
 
+    private (set) var numberOfFilesThatHadToBeParsed: Int32 = 0
+    func incrementFileParsedCount() {
+        OSAtomicIncrement32(&numberOfFilesThatHadToBeParsed)
+    }
+
     /// Creates Sourcery processor
     init(verbose: Bool = false, watcherEnabled: Bool = false, cacheDisabled: Bool = false, cacheBasePath: Path? = nil, prune: Bool = false, arguments: [String: NSObject] = [:]) {
         self.verbose = verbose
@@ -280,6 +285,7 @@ extension Sourcery {
             var previousUpdate = 0
             var accumulator = 0
             let step = sources.count / 10 // every 10%
+            numberOfFilesThatHadToBeParsed = 0
 
             let results = try sources.parallelMap({ try self.loadOrParse(parser: $0, cachesPath: cachesDir(sourcePath: from)) }, progress: !(verbose || watcherEnabled) ? nil : { _ in
                 if accumulator > previousUpdate + step {
@@ -311,7 +317,7 @@ extension Sourcery {
         let (types, functions, typealiases) = Composer.uniqueTypesAndFunctions(parserResult)
 
         Log.benchmark("\tcombiningTypes: \(currentTimestamp() - uniqueTypeStart)\n\ttotal: \(currentTimestamp() - startScan)")
-        Log.info("Found \(types.count) types.")
+        Log.info("Found \(types.count) types in \(allResults.count) files, \(numberOfFilesThatHadToBeParsed) changed from last run.")
         return (Types(types: types, typealiases: typealiases), functions, inlineRanges)
     }
 
@@ -319,6 +325,7 @@ extension Sourcery {
         guard let pathString = parser.path else { fatalError("Unable to retrieve \(String(describing: parser.path))") }
 
         guard let cachesPath = cachesPath() else {
+            incrementFileParsedCount()
             return try parser.parse()
         }
 
@@ -327,8 +334,9 @@ extension Sourcery {
 
         guard artifacts.exists,
             let modifiedDate = parser.modifiedDate,
-            let unarchived = load(artifacts: artifacts.string, modifiedDate: modifiedDate) else {
+            let unarchived = load(artifacts: artifacts.string, modifiedDate: modifiedDate, path: path) else {
 
+            incrementFileParsedCount()
             let result = try parser.parse()
 
             let data = NSKeyedArchiver.archivedData(withRootObject: result)
@@ -344,7 +352,7 @@ extension Sourcery {
         return unarchived
     }
 
-    private func load(artifacts: String, modifiedDate: Date) -> FileParserResult? {
+    private func load(artifacts: String, modifiedDate: Date, path: Path) -> FileParserResult? {
         var unarchivedResult: FileParserResult?
         SwiftTryCatch.try({
 
@@ -354,7 +362,7 @@ extension Sourcery {
                 }
             }
         }, catch: { _ in
-            Log.warning("Failed to unarchive \(artifacts) due to error, re-parsing")
+            Log.warning("Failed to unarchive cache for \(path.string) due to error, re-parsing file")
         }, finallyBlock: {})
 
         return unarchivedResult
